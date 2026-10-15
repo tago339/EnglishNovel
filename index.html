@@ -984,7 +984,11 @@ async function ghPutFile(text, sha){
   const body = { message: 'sync ' + new Date().toISOString(), content: B64.enc(utf8(text)) };
   if(sha) body.sha = sha;
   const r = await fetch(ghUrl(), { method: 'PUT', headers: ghHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
-  if(!r.ok) throw httpErr(r.status);
+  if(!r.ok){
+    let detail = '';
+    try{ detail = (await r.json()).message || ''; }catch(_e){}
+    throw Object.assign(httpErr(r.status), { detail });
+  }
 }
 async function ghRepoExists(){
   const r = await fetch(`https://api.github.com/repos/${ghSync.repo}`, { headers: ghHeaders(), cache: 'no-store' });
@@ -994,7 +998,8 @@ function describeSyncError(e){
   if(e.user) return e.message === 'no-crypto' ? NO_CRYPTO_MSG : e.message;
   if(e.status === 401) return 'GitHubトークンが無効か、期限切れです。';
   if(e.status === 403) return 'トークンの権限が足りないか、アクセス上限です。(Contents: Read and write が必要です)';
-  if(e.status === 404) return 'リポジトリが見つからないか、トークンにこのリポジトリへのアクセス権がありません。';
+  if(e.status === 404) return 'リポジトリが見つかりません。リポジトリをまだ作っていない、名前(ユーザー名/リポジトリ名)の綴りが違う、またはトークンにそのリポジトリへのアクセス権がありません。';
+  if(e.status === 409 && /empty/i.test(e.detail || '')) return 'リポジトリが空のため書き込めません。GitHubのリポジトリ画面で「Add a README」などで、ファイルを1つ作ってから、もう一度お試しください。';
   if(e instanceof TypeError) return 'GitHubに接続できません。ネットワークを確認してください。';
   return '同期に失敗しました。(' + e.message + ')';
 }
@@ -1043,7 +1048,7 @@ async function syncCore(){
       await ghPutFile(JSON.stringify(await encryptPayload(payload, ghSync.key)), remote?.sha);
       return;
     }catch(e){
-      if((e.status === 409 || e.status === 422) && attempt === 0) continue; // 他の端末が先に更新した→取り直してやり直す
+      if((e.status === 409 || e.status === 422) && attempt === 0 && !/empty/i.test(e.detail || '')) continue; // 他の端末が先に更新した→取り直してやり直す
       throw e;
     }
   }
@@ -1229,7 +1234,7 @@ function viewSettings(){
       <div class="error-msg" id="sy-msg"></div>
       <button class="btn" id="sy-connect">接続して同期</button>`}
       <div class="hint" style="margin-top:12px;">
-        ・<b>おすすめ</b>: データ専用の<b>非公開(private)リポジトリ</b>を新しく作ってください。公開サイト用リポジトリに置くと、同期のたびにサイトの再公開が走り、暗号文も公開されます。<br>
+        ・<b>おすすめ</b>: データ専用の<b>非公開(private)リポジトリ</b>を新しく作ってください。作るとき<b>「Add a README file」にチェック</b>を入れてください(空のリポジトリには書き込めません)。公開サイト用リポジトリに置くと、同期のたびにサイトの再公開が走り、暗号文も公開されます。<br>
         ・トークンは Fine-grained personal access token で、「Repository access」は上のリポジトリ<b>1つだけ</b>、「Permissions」は <b>Contents: Read and write</b> のみにしてください。トークンはこのタブのメモリ上にだけ保持され、リロード・ログアウトで消えます。<br>
         ・<b>パスワードを忘れるとGitHub上のデータは復元できません。</b>(サーバーを持たないため、リセットできません。定期的に下のエクスポートも取っておくと安心です)<br>
         ・別の端末では、ログイン画面の「GitHubから復元してログイン」に同じアカウント名・パスワードを入力します。<br>
