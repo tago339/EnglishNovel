@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語小説.com</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="英語小説">
+<meta name="theme-color" content="#24425c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f3efe4;
+    --paper: #fbf9f3;
+    --ink: #221f1a;
+    --ink-soft: #55503f;
+    --line: #d9d2bd;
+    --indigo: #24425c;
+    --indigo-deep: #17293a;
+    --gold: #a97a2f;
+    --danger: #9a3324;
+    --radius: 3px;
+    --serif-jp: 'Zen Old Mincho', serif;
+    --serif-en: 'Lora', serif;
+    --sans: 'Noto Sans JP', -apple-system, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  #app{ min-height: 100vh; display:flex; flex-direction:column; }
+
+  a, button{ font-family: inherit; }
+  button{ cursor:pointer; }
+
+  .topbar{
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .brand{
+    font-family: var(--serif-jp);
+    font-weight:700;
+    font-size: 1.25rem;
+    color: var(--indigo-deep);
+    letter-spacing: .04em;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .brand small{ font-family: var(--sans); font-weight:400; font-size:.65rem; color:var(--ink-soft); display:block; margin-top:2px; letter-spacing:.1em; }
+  .topbar nav{ display:flex; align-items:center; gap:18px; font-size:.85rem; }
+  .topbar nav a, .linklike{
+    color: var(--ink-soft); text-decoration:none; border-bottom:1px solid transparent; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none; padding:0;
+  }
+  .topbar nav a:hover, .linklike:hover{ color: var(--indigo); border-bottom-color: var(--indigo); }
+
+  main{ flex:1; width:100%; }
+
+  .center-stage{
+    max-width: 420px; margin: 0 auto; padding: 64px 24px;
+  }
+  .wide-stage{ max-width: 760px; margin:0 auto; padding: 40px 24px 80px; }
+  .read-stage{ max-width: 1080px; margin:0 auto; padding: 0; display:flex; }
+
+  h1.hero{
+    font-family: var(--serif-jp);
+    font-weight:700;
+    font-size: 2rem;
+    color: var(--indigo-deep);
+    margin: 0 0 10px;
+  }
+  p.lede{ color: var(--ink-soft); margin: 0 0 36px; font-size:.95rem; }
+
+  .field{ margin-bottom: 18px; }
+  .field label{ display:block; font-size:.78rem; color: var(--ink-soft); margin-bottom:6px; letter-spacing:.03em; }
+  .field input, .field select, .field textarea{
+    width:100%; padding: 11px 12px; font-size: .95rem;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--paper); color: var(--ink); font-family: var(--sans);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline: 2px solid var(--indigo); outline-offset:1px; border-color: var(--indigo);
+  }
+  .field textarea{ min-height: 220px; resize: vertical; font-family: var(--serif-jp); line-height:1.9; }
+
+  .btn{
+    display:inline-block; padding: 11px 22px; font-size:.9rem;
+    background: var(--indigo); color:#fff; border:none; border-radius: var(--radius);
+    letter-spacing:.02em;
+  }
+  .btn:hover{ background: var(--indigo-deep); }
+  .btn:disabled{ background:#a9a9a2; cursor:not-allowed; }
+  .btn.secondary{ background: transparent; color: var(--indigo); border:1px solid var(--indigo); }
+  .btn.secondary:hover{ background: rgba(36,66,92,0.06); }
+  .btn.block{ width:100%; }
+  .btn.small{ padding:6px 12px; font-size:.78rem; }
+
+  .error-msg{ color: var(--danger); font-size:.82rem; margin-top:10px; min-height: 1em; }
+  .hint{ color: var(--ink-soft); font-size:.82rem; margin-top: 8px; }
+
+  .form-footer{ margin-top: 22px; font-size:.85rem; color: var(--ink-soft); text-align:center; }
+
+  /* Home */
+  .stat-row{ display:flex; gap:14px; flex-wrap:wrap; margin: 28px 0 40px; }
+  .stat-card{
+    flex:1; min-width:140px; background: var(--paper); border:1px solid var(--line);
+    padding: 18px 20px; border-radius: var(--radius);
+  }
+  .stat-card .num{ font-family: var(--serif-en); font-size:1.7rem; color: var(--indigo-deep); }
+  .stat-card .label{ font-size:.75rem; color: var(--ink-soft); margin-top:4px; }
+  .home-actions{ display:flex; gap:14px; margin-top: 8px; }
+
+  /* Table (list) */
+  .list-header-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 22px; }
+  .novel-list{ border-top:1px solid var(--line); }
+  .novel-row{
+    display:grid; grid-template-columns: 1fr 110px 150px 150px 30px;
+    gap: 14px; align-items:center;
+    padding: 16px 4px; border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .novel-row:hover{ background: rgba(36,66,92,0.04); }
+  .novel-row .title{ font-family: var(--serif-jp); font-weight:600; font-size:1.02rem; }
+  .novel-row .meta{ font-size:.78rem; color: var(--ink-soft); }
+  .novel-row .progress-track{ height:5px; background: var(--line); border-radius: 3px; overflow:hidden; }
+  .novel-row .progress-fill{ height:100%; background: var(--gold); }
+  .novel-row select{ font-size:.78rem; padding:5px 6px; border:1px solid var(--line); border-radius:3px; background:var(--paper); }
+  .novel-row .del-btn{ background:none; border:none; color:var(--ink-soft); font-size:1rem; }
+  .novel-row .del-btn:hover{ color: var(--danger); }
+  .empty-state{ padding: 60px 10px; text-align:center; color: var(--ink-soft); }
+
+  /* Append */
+  .upload-row{ display:flex; align-items:center; gap:12px; margin-top:8px; }
+  .progress-wrap{ margin-top:18px; }
+  .progress-wrap .bar{ height:8px; background: var(--line); border-radius:4px; overflow:hidden; }
+  .progress-wrap .bar-fill{ height:100%; width:0%; background: var(--indigo); transition: width .2s; }
+  .progress-wrap .status{ font-size:.8rem; color: var(--ink-soft); margin-top:8px; }
+
+  /* Reading */
+  .read-col{ flex:1; min-width:0; padding: 34px 44px 80px; }
+  .read-topline{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 30px; }
+  .read-topline h2{ font-family: var(--serif-jp); font-size:1.15rem; margin:0; color: var(--indigo-deep); }
+  .read-topline .pos{ font-size:.78rem; color: var(--ink-soft); }
+  .sentence-box{
+    font-family: var(--serif-en); font-size: 1.5rem; line-height: 2.1;
+    color: var(--ink); min-height: 160px; padding: 10px 0;
+  }
+  .word{ cursor:pointer; border-bottom: 1px dotted transparent; }
+  .word:hover{ border-bottom-color: var(--gold); color: var(--indigo-deep); }
+  .word.looked{ color: var(--indigo); }
+  .ja-toggle-box{
+    margin-top: 18px; padding: 16px 18px; background: var(--paper); border:1px solid var(--line);
+    border-radius: var(--radius); font-family: var(--serif-jp); color: var(--ink-soft); font-size:.95rem;
+    display:none;
+  }
+  .ja-toggle-box.show{ display:block; }
+  .read-controls{ display:flex; justify-content:space-between; align-items:center; margin-top: 40px; }
+  .read-controls .mid-actions{ display:flex; gap:10px; }
+
+  .side-panel{
+    width: 320px; flex-shrink:0; border-left:1px solid var(--line); background: var(--paper);
+    padding: 24px 22px; display:flex; flex-direction:column; min-height:100vh; position:sticky; top:0;
+  }
+  .side-panel h3{ font-size:.85rem; letter-spacing:.03em; color: var(--indigo-deep); margin:0 0 14px; }
+  .word-lookup{ border:1px solid var(--line); border-radius:var(--radius); padding:14px; background:#fff; margin-bottom:20px; min-height:70px; font-size:.88rem; }
+  .word-lookup .w{ font-family: var(--serif-en); font-weight:600; font-size:1.1rem; color: var(--indigo-deep); }
+  .word-lookup .m{ margin-top:6px; color: var(--ink-soft); }
+
+  .chat-log{ overflow-y:auto; font-size:.85rem; margin-bottom: 12px; border:1px solid var(--line); border-radius:var(--radius); padding:12px; background:#fff; min-height:80px; max-height:280px; }
+  .chat-msg{ margin-bottom: 10px; white-space:pre-wrap; }
+  .chat-msg .who{ font-size:.7rem; color: var(--ink-soft); margin-bottom:2px; }
+  .chat-msg.user .who{ color: var(--indigo); }
+  .chat-input-row{ display:flex; gap:8px; }
+  .chat-input-row input{ flex:1; min-width:0; padding:8px 10px; border:1px solid var(--line); border-radius:var(--radius); font-size:.85rem; }
+  .settings-section{ margin-top: 34px; padding-top: 24px; border-top:1px solid var(--line); }
+  .settings-section h3{ font-size:.95rem; color: var(--indigo-deep); margin:0 0 8px; }
+  .ok-msg{ color: var(--indigo); font-size:.82rem; margin-top:10px; min-height:1em; }
+
+  .intro-copy{ font-size:.92rem; color: var(--ink-soft); margin: 18px 0 34px; max-width: 46ch; }
+  .intro-copy p{ margin:0 0 12px; }
+
+  @media (max-width: 860px){
+    .read-stage{ flex-direction:column; }
+    .side-panel{ width:100%; height:auto; min-height:0; position:static; border-left:none; border-top:1px solid var(--line); }
+    .read-col{ padding: 26px 20px 40px; }
+    .sentence-box{ font-size:1.3rem; line-height:1.9; min-height:120px; }
+    .read-controls{ gap:8px; }
+    .read-controls .btn{ padding:11px 14px; }
+    .topbar{ padding:14px 16px; }
+    .topbar nav{ gap:12px; }
+    /* 小説一覧: 5列固定だとスマホの幅に収まらないので、折り返して縦に並べる */
+    .novel-row{ grid-template-columns: 1fr 1fr 30px; gap:8px 12px; }
+    .novel-row > :nth-child(1){ grid-column:1 / 3; grid-row:1; }
+    .novel-row > :nth-child(5){ grid-column:3; grid-row:1; }
+    .novel-row > :nth-child(2){ grid-column:1; grid-row:2; }
+    .novel-row > :nth-child(4){ grid-column:2 / 4; grid-row:2; }
+    .novel-row > :nth-child(3){ grid-column:1 / 4; grid-row:3; }
+    .wide-stage{ padding:28px 16px 60px; }
+    .center-stage{ padding:40px 16px; }
+  }
+  .ipa{ font-family: var(--serif-en); color: var(--ink-soft); font-size:.88rem; margin-top:2px; }
+  .dwrap{ margin-top:10px; padding-top:10px; border-top:1px solid var(--line); font-size:.84rem; }
+  .dwrap .dpos{ font-weight:700; color: var(--indigo-deep); margin-top:8px; }
+  .dwrap ol{ margin:2px 0 0; padding-left:1.3em; color: var(--ink-soft); }
+  .dwrap .dh{ font-weight:700; color: var(--indigo-deep); margin-top:10px; }
+  .tts-row{ display:flex; gap:22px; flex-wrap:wrap; margin-top:18px; font-size:.78rem; color: var(--ink-soft); }
+  .tts-row input{ vertical-align:middle; width:120px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+env.allowLocalModels = false;
+
+/* ---------------- storage ---------------- */
+const LS_USERS = 'enNovel_users';
+const LS_DATA  = 'enNovel_novels';
+const LS_SESSION = 'enNovel_session';
+const LS_GITHUB_MODEL = 'enNovel_githubModel';
+const LS_GHREPO = 'enNovel_syncRepo';       // 同期先リポジトリ名(秘密情報ではない)
+const LS_TOMB = 'enNovel_deleted';
+const DEFAULT_SYNC_REPO = 'tago339/EnglishNovel-data'; // 同期用(できれば非公開)リポジトリの例。画面で変更できる
+const LS_GEMINI_MODEL = 'enNovel_geminiModel'; // モデル名は秘密情報ではないので保存してよい
+const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
+
+/* Gemini APIキーは意図的にメモリ上の変数にだけ保持する。
+   localStorage / sessionStorage / Cookie / 書き出しファイルには一切含めない。
+   リロード・タブを閉じる・ログアウトで消える。 */
+let geminiKey = '';   // 「いま使っているAIのキー」。Gemini/GitHub Modelsのどちらか(切替は setProvider)
+let aiProvider = 'gemini';
+let ghSync = null;   // GitHub同期の接続情報 {repo, token, key, path, username}。メモリのみ(保存しない)
+let syncTimer = null, syncing = false, syncDirty = false, suppressQueue = false, syncStatus = '';  // 同期の状態(migrateData等より前に宣言しておく)
+const aiKeys = { gemini: '', github: '' };
+function setProvider(p){ aiProvider = p; geminiKey = aiKeys[p] || ''; }
+const AI_NAME = () => aiProvider === 'github' ? 'GitHub Models' : 'Gemini';
+
+const store = {
+  getUsers(){ return JSON.parse(localStorage.getItem(LS_USERS) || '[]'); },
+  saveUsers(u){ localStorage.setItem(LS_USERS, JSON.stringify(u)); },
+  getNovels(){ return JSON.parse(localStorage.getItem(LS_DATA) || '[]'); },
+  saveNovels(n){ localStorage.setItem(LS_DATA, JSON.stringify(n)); queueSync(); },
+  getSession(){ return localStorage.getItem(LS_SESSION) || null; },
+  setSession(u){ if(u) localStorage.setItem(LS_SESSION, u); else localStorage.removeItem(LS_SESSION); },
+  getGeminiModel(){ return localStorage.getItem(LS_GEMINI_MODEL) || DEFAULT_GEMINI_MODEL; },
+  saveGeminiModel(m){ localStorage.setItem(LS_GEMINI_MODEL, m); },
+  getGithubModel(){ return localStorage.getItem(LS_GITHUB_MODEL) || 'openai/gpt-4o-mini'; },
+  saveGithubModel(m){ localStorage.setItem(LS_GITHUB_MODEL, m); }
+};
+
+/* ---------------- 音声(ブラウザ内蔵の読み上げ。外部へは送信されない) ---------------- */
+const LS_TTS = 'enNovel_tts';
+function hasTts(){ return 'speechSynthesis' in window; }
+function getTts(){
+  const d = { rate:1, volume:1, auto:false, voice:'' };
+  try{ return Object.assign(d, JSON.parse(localStorage.getItem(LS_TTS) || '{}')); }catch(_e){ return d; }
+}
+function setTts(p){ localStorage.setItem(LS_TTS, JSON.stringify(Object.assign(getTts(), p))); }
+function enVoices(){ return hasTts() ? speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)) : []; }
+let speakId = 0, autoSpeakNext = false;
+function resetSpeakBtn(){ const b = document.getElementById('speak-btn'); if(b) b.textContent = '🔊 音声を再生'; }
+function stopSpeech(){ speakId++; if(hasTts()) speechSynthesis.cancel(); resetSpeakBtn(); }
+function speak(text, onend){
+  if(!hasTts() || !text) return;
+  const id = ++speakId;
+  speechSynthesis.cancel();
+  resetSpeakBtn();
+  const t = getTts(), u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = t.rate; u.volume = t.volume;
+  const v = enVoices().find(x => x.name === t.voice);
+  if(v){ u.voice = v; u.lang = v.lang; }
+  u.onend = u.onerror = () => { if(id === speakId && onend) onend(); };
+  speechSynthesis.speak(u);
+}
+function speakSentence(){
+  if(!readingCtx.sentenceEn) return;
+  speak(readingCtx.sentenceEn, resetSpeakBtn);
+  const b = document.getElementById('speak-btn'); if(b) b.textContent = '■ 停止';
+}
+function maybeAutoSpeak(){
+  if(autoSpeakNext && readingCtx.sentenceEn){ autoSpeakNext = false; speakSentence(); }
+}
+function bindSpeechSettings(){
+  if(!hasTts()) return;
+  const $ = id => document.getElementById(id), t = getTts();
+  $('tts-auto').checked = t.auto; $('tts-rate').value = t.rate; $('tts-vol').value = t.volume;
+  const upd = () => { $('tts-rate-v').textContent = '×' + (+$('tts-rate').value).toFixed(1); $('tts-vol-v').textContent = Math.round($('tts-vol').value * 100) + '%'; };
+  upd();
+  const fill = () => {
+    $('tts-voice').innerHTML = '<option value="">自動</option>' + enVoices().map(v => `<option value="${escapeHtml(v.name)}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`).join('');
+    $('tts-voice').value = getTts().voice;
+  };
+  fill(); speechSynthesis.onvoiceschanged = fill;
+  $('tts-auto').onchange = e => setTts({ auto: e.target.checked });
+  $('tts-rate').oninput = e => { setTts({ rate: +e.target.value }); upd(); };
+  $('tts-vol').oninput = e => { setTts({ volume: +e.target.value }); upd(); };
+  $('tts-voice').onchange = e => setTts({ voice: e.target.value });
+  $('tts-test').onclick = () => speak('The quick brown fox jumps over the lazy dog.');
+}
+
+/* ---------------- 単語の詳細(Gemini使用時のみ) ---------------- */
+const detailCache = {};
+function parseJson(t){ try{ return JSON.parse(String(t).replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, '')); }catch(_e){ return null; } }
+function promptWordBasic(word, en){
+  return `次の英単語について、下の文の中での意味を調べ、JSONだけを返してください(前置き・コードブロック不要)。\n{"meaning":"文中での意味(日本語で簡潔に3〜12文字程度)","pos":"文中での品詞(例: 動詞)","ipa":"IPA発音記号(スラッシュ付き)","form":"原形や活用形の説明(例: goの過去形。原形のままなら空文字)"}\n\n単語: ${word}\n文: ${en}`;
+}
+function promptWordDetail(word, en){
+  return `次の英単語の詳細を日本語で、JSONだけで返してください(前置き・コードブロック不要)。\n{"lemma":"原形","meanings":[{"pos":"品詞(動詞・名詞・形容詞など)","senses":["意味1","意味2"]}],"forms":["活用や変化形を1項目ずつ(例: 原形: go / 三単現: goes / 過去形: went / 過去分詞: gone / 現在分詞: going)。名詞は複数形、形容詞・副詞は比較級・最上級。変化しない語は空配列"],"etymology":"語源を2文以内で。不確かな場合は『諸説あり』と添える"}\n品詞ごとに主な意味を2〜4個挙げてください。\n\n単語: ${word}\n文(参考): ${en}`;
+}
+
+/* 小説はアカウントごとに分けて扱う(同じIDの小説が別アカウントにあっても混ざらないように) */
+function findNovel(novels, id){
+  const uname = store.getSession();
+  return novels.find(n => n.id === id && n.userId === uname);
+}
+
+/* 単語数は保存せず、小説(文ごとの訳文・既読フラグ)から都度計算する */
+function novelStats(n){
+  let totalWords = 0, readWords = 0, translated = 0;
+  for(const s of n.sentences){
+    if(!s.en) continue;
+    const wc = countWords(s.en);
+    totalWords += wc;
+    translated++;
+    if(s.read) readWords += wc;
+  }
+  return { totalWords, readWords, translated };
+}
+
+/* 旧形式(readWords / totalWords / _readIdx / user.stats)のデータを新形式へ一度だけ移行する */
+function migrateData(){
+  let novels;
+  try{ novels = store.getNovels(); }catch(e){ return; }
+  let changed = false;
+  for(const n of novels){
+    if(Array.isArray(n._readIdx)){
+      n._readIdx.forEach(i => { if(n.sentences?.[i]?.en) n.sentences[i].read = true; });
+      delete n._readIdx; changed = true;
+    }
+    if('readWords' in n){ delete n.readWords; changed = true; }
+    if('totalWords' in n){ delete n.totalWords; changed = true; }
+  }
+  if(changed) store.saveNovels(novels);
+}
+migrateData();
+
+function currentUser(){
+  const uname = store.getSession();
+  if(!uname) return null;
+  return store.getUsers().find(u => u.username === uname) || null;
+}
+
+/* 旧形式(base64)のパスワード。互換のため読み取りだけ残し、ログイン成功時に新形式へ置き換える */
+function encode(pw){ return btoa(unescape(encodeURIComponent(pw))); }
+
+/* ---------------- パスワードと暗号 (Web Crypto) ----------------
+   ・端末内アカウントのパスワードは PBKDF2(SHA-256) のハッシュ+ソルトで保存する
+   ・GitHubへ保存するデータは、パスワードから作った鍵で AES-GCM 暗号化する(パスワードが違うと復号できない) */
+const PBKDF2_ITER = 300000;
+const hasCrypto = () => !!(self.crypto && crypto.subtle);
+const B64 = {
+  enc(buf){ const a = new Uint8Array(buf); let s = ''; for(let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000)); return btoa(s); },
+  dec(str){ const s = atob(str); const a = new Uint8Array(s.length); for(let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+};
+const utf8 = s => new TextEncoder().encode(s);
+async function pbkdf2Key(password, salt, usage, derived){
+  const km = await crypto.subtle.importKey('raw', utf8(password), 'PBKDF2', false, [usage]);
+  const params = { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: PBKDF2_ITER };
+  return usage === 'deriveBits' ? crypto.subtle.deriveBits(params, km, 256) : crypto.subtle.deriveKey(params, km, derived, false, ['encrypt', 'decrypt']);
+}
+async function makePasswordRecord(pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return { salt: B64.enc(salt), hash: B64.enc(await pbkdf2Key(pw, salt, 'deriveBits')), iter: PBKDF2_ITER };
+}
+async function checkPassword(u, pw){
+  if(u.hash){
+    if(!hasCrypto()) throw Object.assign(new Error('no-crypto'), { user: true });
+    return B64.enc(await pbkdf2Key(pw, B64.dec(u.salt), 'deriveBits')) === u.hash;
+  }
+  return !!u.password && u.password === encode(pw);
+}
+async function newAccountRecord(uname, pw){
+  return hasCrypto() ? { username: uname, ...(await makePasswordRecord(pw)) } : { username: uname, password: encode(pw) };
+}
+async function upgradePasswordRecord(u, pw){
+  if(!u.password || u.hash || !hasCrypto()) return;
+  const users = store.getUsers();
+  const t = users.find(x => x.username === u.username);
+  if(!t) return;
+  delete t.password; Object.assign(t, await makePasswordRecord(pw));
+  store.saveUsers(users);
+}
+const NO_CRYPTO_MSG = 'この環境では暗号化機能が使えません。https のページ(GitHub Pagesなど)で開いてください。';
+async function sha256(s){ return new Uint8Array(await crypto.subtle.digest('SHA-256', utf8(s))); }
+const toHex = a => [...a].map(b => b.toString(16).padStart(2, '0')).join('');
+async function streamBytes(bytes, Ctor){ return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new Ctor('gzip'))).arrayBuffer()); }
+
+/* ---------------- routing ---------------- */
+function nav(hash){ location.hash = hash; }
+function parseHash(){
+  const raw = location.hash.replace(/^#/, '') || 'Entrance';
+  const [page, qs] = raw.split('?');
+  const params = new URLSearchParams(qs || '');
+  return { page, params };
+}
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', render);
+
+const PUBLIC_PAGES = new Set(['Entrance','Login','CreateAccount']);
+
+function render(){ stopSpeech();
+  const { page, params } = parseHash();
+  const user = currentUser();
+  if(!PUBLIC_PAGES.has(page) && !user){ nav('Entrance'); return; }
+  const app = document.getElementById('app');
+  switch(page){
+    case 'Entrance': app.innerHTML = viewEntrance(); break;
+    case 'Login': app.innerHTML = viewLogin(); bindLogin(); break;
+    case 'CreateAccount': app.innerHTML = viewCreateAccount(); bindCreateAccount(); break;
+    case 'Home': app.innerHTML = viewHome(user); break;
+    case 'Table': app.innerHTML = viewTable(user); bindTable(user); break;
+    case 'Append': app.innerHTML = viewAppend(); bindAppend(); break;
+    case 'Settings': app.innerHTML = viewSettings(); bindSettings(); break;
+    case 'Reading': app.innerHTML = viewReading(user, params.get('id')); bindReading(user, params.get('id')); break;
+    default: app.innerHTML = viewEntrance();
+  }
+}
+
+/* ---------------- shared chrome ---------------- */
+function topbar(loggedIn){
+  return `
+  <div class="topbar">
+    <a class="brand" onclick="location.hash='${loggedIn ? 'Home' : 'Entrance'}'">英語小説.com<small>READ JAPANESE NOVELS IN ENGLISH</small></a>
+    <nav>
+      ${loggedIn ? `<button class="linklike" onclick="location.hash='Home'">ホーム</button>
+      <button class="linklike" onclick="location.hash='Settings'">設定</button>
+      <button class="linklike" onclick="doLogout()">ログアウト</button>` : ''}
+    </nav>
+  </div>`;
+}
+window.doLogout = function(){ store.setSession(null); aiKeys.gemini = ''; aiKeys.github = ''; setProvider('gemini'); ghSync = null; clearTimeout(syncTimer); syncStatus = ''; syncDirty = false; resetGeminiState(); nav('Entrance'); };
+
+/* ---------------- Entrance ---------------- */
+function viewEntrance(){
+  return `
+  ${topbar(false)}
+  <main><div class="center-stage" style="text-align:left; max-width:480px;">
+    <h1 class="hero">英語小説.com</h1>
+    <div class="intro-copy">
+      <p>好きな日本語の小説を読み込むと、英語の文章に変換して表示します。</p>
+      <p>気になる単語をクリックすれば意味が確認でき、読んだ単語数もたまっていきます。</p>
+      <p>翻訳は基本的にブラウザの中だけで行われ、テキストが外部サーバーへ送信されることはありません。(設定でGeminiを有効にした場合のみ、その間は文がGoogleへ送信されます。)</p>
+    </div>
+    <button class="btn block" onclick="location.hash='Login'">ログインして始める</button>
+  </div></main>`;
+}
+
+/* ---------------- Login ---------------- */
+function viewLogin(){
+  return `
+  ${topbar(false)}
+  <main><div class="center-stage">
+    <h1 class="hero">ログイン</h1>
+    <p class="lede">アカウント名とパスワードを入力してください。</p>
+    <div class="field"><label>アカウント名</label><input id="li-user" autocomplete="username"></div>
+    <div class="field"><label>パスワード</label><input id="li-pass" type="password" autocomplete="current-password"></div>
+    <div class="error-msg" id="li-err"></div>
+    <button class="btn block" id="li-submit">ログイン</button>
+
+    <div class="settings-section" style="margin-top:28px;">
+      <h3>別の端末のデータをGitHubから復元してログイン</h3>
+      <p class="hint" style="margin-top:0;">上のアカウント名・パスワードで暗号化してGitHubに保存したデータを取り込みます。パスワードが違うと復号できないため、GitHub上のデータでパスワードを確認します。</p>
+      <div class="field"><label>リポジトリ(ユーザー名/リポジトリ名)</label><input id="li-repo" spellcheck="false" value="${escapeHtml(syncRepo())}"></div>
+      <div class="field"><label>GitHubトークン(保存されません)</label><input id="li-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..."></div>
+      <button class="btn secondary block" id="li-restore">GitHubから復元してログイン</button>
+    </div>
+
+    <div class="form-footer">アカウントをお持ちでない方は <button class="linklike" onclick="location.hash='CreateAccount'">こちらから作成</button></div>
+  </div></main>`;
+}
+function bindLogin(){
+  const err = document.getElementById('li-err');
+  const val = id => document.getElementById(id).value;
+  const say = (m, cls) => { err.className = cls || 'error-msg'; err.textContent = m; };
+  document.getElementById('li-submit').onclick = async () => {
+    const uname = val('li-user').trim(), pass = val('li-pass');
+    const u = store.getUsers().find(x => x.username === uname);
+    try{
+      if(!u || !(await checkPassword(u, pass))){ say('アカウント名またはパスワードが正しくありません。'); return; }
+      await upgradePasswordRecord(u, pass);
+    }catch(e){ say(e.message === 'no-crypto' ? NO_CRYPTO_MSG : 'ログインに失敗しました。'); return; }
+    store.setSession(uname);
+    nav('Home');
+  };
+  document.getElementById('li-restore').onclick = async () => {
+    const btn = document.getElementById('li-restore');
+    btn.disabled = true; say('GitHubに接続しています…', 'hint');
+    const r = await restoreFromGithub(val('li-user').trim(), val('li-pass'), val('li-repo').trim(), val('li-token').trim());
+    btn.disabled = false;
+    if(!r.ok){ say(r.msg); return; }
+    nav('Home');
+    syncNow(); // 復元後、こちらにだけある変更があればGitHubへ反映する
+  };
+}
+
+/* ---------------- CreateAccount ---------------- */
+function viewCreateAccount(){
+  return `
+  ${topbar(false)}
+  <main><div class="center-stage">
+    <h1 class="hero">アカウント作成</h1>
+    <p class="lede">アカウントはこのブラウザに保存されます。他の端末でも使いたい場合は、作成後に設定でGitHub同期をつないでください。</p>
+    <div class="field"><label>アカウント名</label><input id="ca-user" autocomplete="username"></div>
+    <div class="field"><label>パスワード</label><input id="ca-pass" type="password" autocomplete="new-password"></div>
+    <div class="error-msg" id="ca-err"></div>
+    <button class="btn block" id="ca-submit">作成してホームへ</button>
+    <div class="form-footer"><button class="linklike" onclick="location.hash='Login'">ログイン画面に戻る</button></div>
+  </div></main>`;
+}
+function bindCreateAccount(){
+  document.getElementById('ca-submit').onclick = async () => {
+    const uname = document.getElementById('ca-user').value.trim();
+    const pass = document.getElementById('ca-pass').value;
+    const err = document.getElementById('ca-err');
+    if(!uname || !pass){ err.textContent = 'アカウント名とパスワードを入力してください。'; return; }
+    const users = store.getUsers();
+    if(users.some(u => u.username === uname)){ err.textContent = 'そのアカウント名はすでに使われています。'; return; }
+    users.push(await newAccountRecord(uname, pass));
+    store.saveUsers(users);
+    store.setSession(uname);
+    nav('Home');
+  };
+}
+
+/* ---------------- Home ---------------- */
+function viewHome(user){
+  const novels = store.getNovels().filter(n => n.userId === user.username);
+  const totalNovels = novels.length;
+  const wordsRead = novels.reduce((sum, n) => sum + novelStats(n).readWords, 0);
+  return `
+  ${topbar(true)}
+  <main><div class="wide-stage">
+    <h1 class="hero">おかえりなさい、${escapeHtml(user.username)} さん</h1>
+    <p class="lede">今日も少しずつ読み進めましょう。</p>
+    <div class="stat-row">
+      <div class="stat-card"><div class="num">${totalNovels}</div><div class="label">登録した小説</div></div>
+      <div class="stat-card"><div class="num">${wordsRead.toLocaleString()}</div><div class="label">読んだ単語数(累計)</div></div>
+    </div>
+    <div class="home-actions">
+      <button class="btn" onclick="location.hash='Table'">小説一覧を見る</button>
+      <button class="btn secondary" onclick="location.hash='Append'">小説を追加する</button>
+    </div>
+  </div></main>`;
+}
+
+/* ---------------- Table ---------------- */
+function viewTable(user){
+  const novels = store.getNovels().filter(n => n.userId === user.username);
+  return `
+  ${topbar(true)}
+  <main><div class="wide-stage">
+    <div class="list-header-row">
+      <h1 class="hero" style="margin:0;">小説一覧</h1>
+      <button class="btn" onclick="location.hash='Append'">＋ 小説を追加</button>
+    </div>
+    ${novels.length === 0 ? `<div class="empty-state">まだ小説が登録されていません。「小説を追加」から始めましょう。</div>` : `
+    <div class="novel-list">
+      ${novels.map(n => {
+        const total = n.sentences.length;
+        const readCount = Math.min(total, n.currentSentenceIndex || 0);
+        const st = novelStats(n);
+        const pct = total ? Math.round((readCount / total) * 100) : 0;
+        return `
+        <div class="novel-row" data-id="${escapeHtml(n.id)}">
+          <div>
+            <div class="title">${escapeHtml(n.title)}</div>
+            <div class="meta">${total}文 ／ ${st.totalWords}語(翻訳済み)</div>
+          </div>
+          <div class="meta">${pct}% 既読<div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+          <div class="meta">既読 ${readCount} / ${total} 文</div>
+          <select data-level-for="${escapeHtml(n.id)}">
+            <option value="beginner" ${n.enLevel==='beginner'?'selected':''}>初級</option>
+            <option value="junior" ${n.enLevel==='junior'?'selected':''}>中級</option>
+            <option value="advanced" ${n.enLevel==='advanced'?'selected':''}>上級</option>
+          </select>
+          <button class="del-btn" data-del="${escapeHtml(n.id)}" title="削除">×</button>
+        </div>`;
+      }).join('')}
+    </div>`}
+  </div></main>`;
+}
+function bindTable(user){
+  document.querySelectorAll('.novel-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if(e.target.closest('select') || e.target.closest('button')) return;
+      nav('Reading?id=' + row.dataset.id);
+    });
+  });
+  document.querySelectorAll('[data-level-for]').forEach(sel => {
+    sel.addEventListener('click', e => e.stopPropagation());
+    sel.addEventListener('change', () => {
+      const novels = store.getNovels();
+      const n = findNovel(novels, sel.dataset.levelFor);
+      if(n){ n.enLevel = sel.value; store.saveNovels(novels); }
+    });
+  });
+  document.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if(!confirm('この小説を削除しますか？')) return;
+      let novels = store.getNovels();
+      markDeleted(btn.dataset.del);
+      novels = novels.filter(x => !(x.id === btn.dataset.del && x.userId === store.getSession()));
+      store.saveNovels(novels);
+      render();
+    });
+  });
+}
+
+/* ---------------- Append ---------------- */
+function viewAppend(){
+  return `
+  ${topbar(true)}
+  <main><div class="wide-stage">
+    <h1 class="hero">小説を追加</h1>
+    <p class="lede">日本語のテキストを文単位に分けて保存します。英語への翻訳は追加時には行わず、読書ページで1文ずつ表示するタイミングで行います。</p>
+    <div class="field"><label>タイトル</label><input id="ap-title" placeholder="例: 赤ずきん"></div>
+    <div class="field">
+      <label>本文(日本語)</label>
+      <textarea id="ap-text" placeholder="ここに日本語のテキストを貼り付けるか、下からtxtファイルを選択してください"></textarea>
+      <div class="upload-row">
+        <input type="file" id="ap-file" accept=".txt">
+      </div>
+    </div>
+    <div class="field" style="max-width:220px;">
+      <label>翻訳レベル</label>
+      <select id="ap-level">
+        <option value="beginner">初級</option>
+        <option value="junior" selected>中級</option>
+        <option value="advanced">上級</option>
+      </select>
+      <div class="hint">※翻訳レベルは、設定でGeminiを有効にしている間だけ訳文に反映されます。未使用時は直訳のみで、一覧での目印になります。</div>
+    </div>
+    <div class="error-msg" id="ap-err"></div>
+    <button class="btn" id="ap-submit">保存する</button>
+  </div></main>`;
+}
+function bindAppend(){
+  document.getElementById('ap-file').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => { document.getElementById('ap-text').value = reader.result; };
+    reader.readAsText(f, 'utf-8');
+  });
+  document.getElementById('ap-submit').onclick = async () => {
+    const title = document.getElementById('ap-title').value.trim();
+    const text = document.getElementById('ap-text').value.trim();
+    const level = document.getElementById('ap-level').value;
+    const err = document.getElementById('ap-err');
+    err.textContent = '';
+    if(!title || !text){ err.textContent = 'タイトルと本文を入力してください。'; return; }
+
+    const jaSentences = splitJapanese(text);
+    if(jaSentences.length === 0){ err.textContent = '文章を認識できませんでした。'; return; }
+
+    document.getElementById('ap-submit').disabled = true;
+
+    const sentences = jaSentences.map((ja, i) => ({ index: i, ja, en: null }));
+    const novels = store.getNovels();
+    const novel = {
+      id: newNovelId(),
+      userId: currentUser().username,
+      title,
+      enLevel: level,
+      currentSentenceIndex: 0,
+      sentences
+    };
+    novels.push(novel);
+    store.saveNovels(novels);
+    nav('Table');
+  };
+}
+
+/* ---------------- Gemini (任意) ----------------
+   APIキーを入力した間だけ有効。キーはメモリのみで保持し、リロードで消える。
+   有効な間は、翻訳対象の文・単語・質問がGoogleのサーバーへ送信される。 */
+let geminiThinkingOff = true;  // 「考える時間」を切って応答を速くする(未対応のモデルなら自動で元に戻す)
+let geminiCooldownUntil = 0;     // この時刻まではGeminiを呼ばない(上限到達・混雑のとき)
+let geminiLimitDaily = false;    // 直近の上限が「1日あたり」の枠だったか
+let allowLocalFallback = false;  // 「端末内モデルで翻訳する」を選んだ場合だけ、Gemini不調時に端末内翻訳を使う
+
+function geminiUsableNow(){ return !!geminiKey && Date.now() >= geminiCooldownUntil; }
+function geminiCooldownError(){
+  const err = new Error('gemini-cooldown');
+  err.status = 429; err.gemini = true;
+  err.daily = geminiLimitDaily;
+  err.retryMs = Math.max(0, geminiCooldownUntil - Date.now());
+  return err;
+}
+function resetGeminiState(){
+  geminiCooldownUntil = 0; geminiLimitDaily = false; allowLocalFallback = false;
+}
+
+async function callGemini(contents, systemText, generationConfig){
+  if(!geminiKey) throw new Error('no-key');
+  if(Date.now() < geminiCooldownUntil) throw geminiCooldownError(); // 上限中は無駄に叩かない
+  if(aiProvider === 'github') return callGithub(contents, systemText);
+  const model = store.getGeminiModel();
+  const body = { contents };
+  if(systemText) body.systemInstruction = { parts: [{ text: systemText }] };
+  const gc = Object.assign({}, generationConfig);
+  if(geminiThinkingOff && !gc.thinkingConfig) gc.thinkingConfig = { thinkingBudget: 0 };
+  if(Object.keys(gc).length) body.generationConfig = gc;
+  const doFetch = () => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': geminiKey }, // URLにキーを載せない
+    body: JSON.stringify(body)
+  });
+  let res = await doFetch();
+  if(res.status === 400 && body.generationConfig?.thinkingConfig && geminiThinkingOff){
+    /* このモデルは思考オフ指定に未対応。指定なしでやり直し、以後も付けない */
+    geminiThinkingOff = false;
+    delete body.generationConfig.thinkingConfig;
+    if(!Object.keys(body.generationConfig).length) delete body.generationConfig;
+    res = await doFetch();
+  }
+  if(!res.ok){
+    let info = null;
+    try{ info = (await res.json()).error || null; }catch(_e){}
+    const detail = info?.message || '';
+    const err = new Error('HTTP ' + res.status + (detail ? ': ' + detail : ''));
+    err.status = res.status;
+    if(res.status === 429 || res.status === 503){
+      let retryMs = 0;
+      let daily = /per ?day/i.test(detail);
+      for(const d of (Array.isArray(info?.details) ? info.details : [])){
+        const t = String(d['@type'] || '');
+        if(t.endsWith('RetryInfo') && d.retryDelay){
+          const sec = parseFloat(d.retryDelay);
+          if(sec > 0) retryMs = Math.ceil(sec * 1000);
+        }
+        if(t.endsWith('QuotaFailure')){
+          for(const v of (d.violations || [])) if(/PerDay/i.test(v.quotaId || '')) daily = true;
+        }
+      }
+      const MAX = 30 * 60 * 1000;
+      retryMs = daily ? MAX : Math.min(Math.max(retryMs || (res.status === 503 ? 10000 : 60000), 5000), MAX);
+      err.retryMs = retryMs; err.daily = daily;
+      geminiCooldownUntil = Date.now() + retryMs;
+      geminiLimitDaily = daily;
+    }
+    throw err;
+  }
+  const data = await res.json();
+  const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+  if(!text) throw new Error('empty-response');
+  return text;
+}
+/* GitHub Models(OpenAI互換)。Gemini形式のcontentsをmessagesに変換して呼ぶ */
+async function callGithub(contents, systemText){
+  const messages = [];
+  if(systemText) messages.push({ role: 'system', content: systemText });
+  for(const c of contents) messages.push({ role: c.role === 'model' ? 'assistant' : 'user', content: (c.parts || []).map(x => x.text || '').join('') });
+  const res = await fetch('https://models.github.ai/inference/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + geminiKey },
+    body: JSON.stringify({ model: store.getGithubModel(), messages })
+  });
+  if(!res.ok){
+    let detail = ''; try{ detail = (await res.json()).error?.message || ''; }catch(_e){}
+    const err = new Error('HTTP ' + res.status + (detail ? ': ' + detail : ''));
+    err.status = res.status;
+    if(res.status === 429 || res.status === 503){
+      const ra = parseFloat(res.headers.get('retry-after')) || 60;
+      const daily = ra > 1800 || /per ?day/i.test(detail);
+      err.retryMs = Math.min(Math.max(ra * 1000, 5000), 30 * 60 * 1000); err.daily = daily;
+      geminiCooldownUntil = Date.now() + err.retryMs; geminiLimitDaily = daily;
+    }
+    throw err;
+  }
+  const text = ((await res.json()).choices?.[0]?.message?.content || '').trim();
+  if(!text) throw new Error('empty-response');
+  return text;
+}
+function geminiAsk(prompt){
+  return callGemini([{ role: 'user', parts: [{ text: prompt }] }]);
+}
+function levelLabel(level){
+  return { beginner: '中学レベルのやさしい単語・短い文', junior: '高校レベルの標準的な語彙・文', advanced: '大学・ネイティブレベルの自然な語彙・文' }[level] || '標準的な語彙・文';
+}
+function promptTranslateSentence(ja, level){
+  return `次の日本語の文を、${levelLabel(level)}で自然な英語に翻訳してください。意味は変えずに、前後の文脈がなくても読める1文にしてください。出力は英訳のみを返し、説明・引用符・前置きは一切付けないでください。\n\n日本語: ${ja}`;
+}
+function promptWordMeaning(word, sentenceEn){
+  return `次の英単語について、この文中での意味を日本語で非常に簡潔に(3〜12文字程度)答えてください。説明文・記号・品詞表記は付けず、意味の日本語訳だけを1つ返してください。\n\n単語: ${word}\n文: ${sentenceEn}`;
+}
+function promptExplain(en, ja){
+  return `次の英文について、英語学習者向けに文法・表現のポイントを日本語で3行以内・簡潔に解説してください。前置きは不要です。\n\n英文: ${en}\n参考(日本語原文): ${ja}`;
+}
+function describeGeminiError(e){ return describeGeminiError0(e).replace(/Gemini(?!の1日)/g, AI_NAME()).replace('Geminiの1日', AI_NAME() + 'の1日'); }
+function describeGeminiError0(e){
+  if(e.status === 400 || e.status === 401 || e.status === 403) return 'APIキーが正しくないか、このキーでは利用できません。(' + e.message + ')';
+  if(e.status === 404) return 'モデル名が見つかりません。モデル名を確認してください。';
+  if(e.status === 429 || e.status === 503){
+    if(e.daily) return 'Geminiの1日あたりの無料枠に達した可能性があります。モデル名を変える(例: gemini-flash-lite-latest)か、時間をおいてお試しください。';
+    return `Geminiの利用上限に達しました。約${Math.max(1, Math.ceil((e.retryMs || 60000) / 1000))}秒後に再開できます。`;
+  }
+  if(e instanceof TypeError) return 'Geminiに接続できません。ネットワーク接続を確認してください。';
+  return '接続に失敗しました。(' + e.message + ')';
+}
+
+/* ---------------- Export / Import ----------------
+   ・小説ごとにID(novel.id)を持たせ、インポート時はIDで照合する
+   ・IDが一致しない小説は追加、一致する小説は未翻訳の文・既読・読書位置の差分だけ取り込む
+   ・単語数は保存せず、取り込んだ小説から都度計算される
+   ・パスワードとGemini APIキーは書き出さない */
+const EXPORT_APP = 'EnglishNovel';
+const EXPORT_VERSION = 2;
+const ID_PATTERN = /^[A-Za-z0-9_.@-]{1,100}$/;
+const LEVELS = ['beginner', 'junior', 'advanced'];
+const MAX_IMPORT_BYTES = 30 * 1024 * 1024;
+
+function exportUserData(){
+  const user = currentUser();
+  const novels = store.getNovels().filter(n => n.userId === user.username).map(n => ({
+    id: n.id,
+    title: n.title,
+    enLevel: n.enLevel,
+    currentSentenceIndex: n.currentSentenceIndex || 0,
+    sentences: n.sentences.map(s => {
+      const o = { ja: s.ja, en: s.en || null };
+      if(s.read) o.read = true;
+      return o;
+    })
+  }));
+  const payload = { app: EXPORT_APP, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), username: user.username, novels };
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const d = new Date();
+  const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  const safeName = user.username.replace(/[\\/:*?"<>|\s]/g, '_');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `eigo-novel_${safeName}_${ymd}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  return novels.length;
+}
+
+/* インポートファイル由来のデータは信用せず、必要な項目だけを検証して取り出す */
+function sanitizeImportedNovel(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  if(typeof raw.id !== 'string' || !ID_PATTERN.test(raw.id)) return null;
+  if(typeof raw.title !== 'string' || !raw.title.trim()) return null;
+  if(!Array.isArray(raw.sentences) || raw.sentences.length === 0) return null;
+  const sentences = [];
+  for(let i = 0; i < raw.sentences.length; i++){
+    const s = raw.sentences[i];
+    if(!s || typeof s.ja !== 'string' || !s.ja) return null;
+    const en = (typeof s.en === 'string' && s.en) ? s.en : null;
+    const o = { index: i, ja: s.ja, en };
+    if(s.read === true && en) o.read = true;
+    sentences.push(o);
+  }
+  const cur = raw.currentSentenceIndex;
+  return {
+    id: raw.id,
+    title: raw.title.trim().slice(0, 200),
+    enLevel: LEVELS.includes(raw.enLevel) ? raw.enLevel : 'junior',
+    currentSentenceIndex: (Number.isInteger(cur) && cur >= 0 && cur < sentences.length) ? cur : 0,
+    sentences
+  };
+}
+
+function importUserData(obj){
+  if(!obj || obj.app !== EXPORT_APP || !Array.isArray(obj.novels)){
+    return { ok: false, msg: 'このアプリで書き出したファイルではありません。' };
+  }
+  if(typeof obj.version === 'number' && obj.version > EXPORT_VERSION){
+    return { ok: false, msg: 'より新しいバージョンで書き出されたファイルです。アプリを更新してください。' };
+  }
+  const username = store.getSession();
+  const novels = store.getNovels();
+  let added = 0, merged = 0, unchanged = 0, skipped = 0;
+
+  for(const raw of obj.novels){
+    const inc = sanitizeImportedNovel(raw);
+    if(!inc){ skipped++; continue; }
+    const local = novels.find(n => n.id === inc.id && n.userId === username);
+    if(!local){
+      novels.push({ ...inc, userId: username });
+      added++;
+      continue;
+    }
+    let changed = false;
+    const sameShape = local.sentences.length === inc.sentences.length;
+    const len = Math.min(local.sentences.length, inc.sentences.length);
+    for(let i = 0; i < len; i++){
+      const ls = local.sentences[i], is = inc.sentences[i];
+      if(ls.ja !== is.ja) continue; // 本文が違う文には触らない
+      if(!ls.en && is.en){ ls.en = is.en; changed = true; }
+      if(is.read && ls.en && !ls.read){ ls.read = true; changed = true; }
+    }
+    if(sameShape && inc.currentSentenceIndex > (local.currentSentenceIndex || 0)){
+      local.currentSentenceIndex = inc.currentSentenceIndex;
+      changed = true;
+    }
+    if(changed) merged++; else unchanged++;
+  }
+
+  try{
+    store.saveNovels(novels); // 1回の書き込みなので、失敗しても中途半端な状態にならない
+  }catch(e){
+    return { ok: false, msg: '保存に失敗しました。ブラウザの保存容量が足りない可能性があります。(何も変更していません)' };
+  }
+  const parts = [`新規追加 ${added}冊`, `更新(差分を取り込み) ${merged}冊`, `変更なし ${unchanged}冊`];
+  if(skipped) parts.push(`形式が不正なためスキップ ${skipped}冊`);
+  return { ok: true, msg: 'インポートしました。' + parts.join(' / ') };
+}
+
+/* ---------------- GitHub同期 ----------------
+   ・小説データ(本文・訳文・既読・読書位置)を、パスワードから作った鍵でAES-GCM暗号化し、GitHubリポジトリの1ファイルに保存する
+   ・リポジトリ上は暗号文だけ。パスワードを知らないと読めない(=GitHubのデータでパスワードを確認できる)
+   ・トークンと鍵はメモリのみ(保存しない)。ファイル名はアカウント名のハッシュ
+   ・同期 = 「GitHubから取得→復号→取り込み(追加方式+削除の反映)→差分があればGitHubへ保存」 */
+const REPO_RE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const userErr = msg => Object.assign(new Error(msg), { user: true });
+function syncRepo(){ return localStorage.getItem(LS_GHREPO) || DEFAULT_SYNC_REPO; }
+function getTomb(){ try{ const a = JSON.parse(localStorage.getItem(LS_TOMB) || '[]'); return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; }catch(e){ return []; } }
+function markDeleted(id){ const t = new Set(getTomb()); t.add(id); localStorage.setItem(LS_TOMB, JSON.stringify([...t])); }
+
+async function makeSync(repo, token, username, password){
+  const salt = (await sha256('enNovel-salt:' + username)).slice(0, 16); // アカウントごとに固定(どの端末でも同じ鍵になる)
+  const key = await pbkdf2Key(password, salt, 'deriveKey', { name: 'AES-GCM', length: 256 });
+  const id = toHex(await sha256('enNovel:' + username)).slice(0, 32);
+  return { repo, token, key, username, path: 'eigo-novel/' + id + '.json' };
+}
+async function encryptPayload(obj, key){
+  let bytes = utf8(JSON.stringify(obj));
+  const gz = typeof CompressionStream !== 'undefined';
+  if(gz) bytes = await streamBytes(bytes, CompressionStream);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+  return { app: EXPORT_APP, v: 1, enc: 'AES-GCM', kdf: 'PBKDF2-SHA256', iter: PBKDF2_ITER, gz, iv: B64.enc(iv), data: B64.enc(ct) };
+}
+async function decryptPayload(file, key){
+  let bytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: B64.dec(file.iv) }, key, B64.dec(file.data)));
+  if(file.gz){
+    if(typeof DecompressionStream === 'undefined') throw userErr('このブラウザは圧縮データを展開できません。');
+    bytes = await streamBytes(bytes, DecompressionStream);
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+const ghHeaders = (extra = {}) => ({ 'Authorization': 'Bearer ' + ghSync.token, 'Accept': 'application/vnd.github+json', ...extra });
+const ghUrl = () => `https://api.github.com/repos/${ghSync.repo}/contents/${ghSync.path}`;
+const httpErr = status => Object.assign(new Error('GitHub HTTP ' + status), { status });
+async function ghGetFile(){
+  const r = await fetch(ghUrl(), { headers: ghHeaders(), cache: 'no-store' });
+  if(r.status === 404) return null;
+  if(!r.ok) throw httpErr(r.status);
+  const j = await r.json();
+  let text;
+  if(j.encoding === 'base64' && j.content) text = new TextDecoder().decode(B64.dec(j.content.replace(/\s/g, '')));
+  else { // 1MBを超えるファイルは本文が返らないので、rawで取り直す
+    const rr = await fetch(ghUrl(), { headers: ghHeaders({ 'Accept': 'application/vnd.github.raw+json' }), cache: 'no-store' });
+    if(!rr.ok) throw httpErr(rr.status);
+    text = await rr.text();
+  }
+  return { sha: j.sha, text };
+}
+async function ghPutFile(text, sha){
+  const body = { message: 'sync ' + new Date().toISOString(), content: B64.enc(utf8(text)) };
+  if(sha) body.sha = sha;
+  const r = await fetch(ghUrl(), { method: 'PUT', headers: ghHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+  if(!r.ok) throw httpErr(r.status);
+}
+async function ghRepoExists(){
+  const r = await fetch(`https://api.github.com/repos/${ghSync.repo}`, { headers: ghHeaders(), cache: 'no-store' });
+  return r.ok;
+}
+function describeSyncError(e){
+  if(e.user) return e.message === 'no-crypto' ? NO_CRYPTO_MSG : e.message;
+  if(e.status === 401) return 'GitHubトークンが無効か、期限切れです。';
+  if(e.status === 403) return 'トークンの権限が足りないか、アクセス上限です。(Contents: Read and write が必要です)';
+  if(e.status === 404) return 'リポジトリが見つからないか、トークンにこのリポジトリへのアクセス権がありません。';
+  if(e instanceof TypeError) return 'GitHubに接続できません。ネットワークを確認してください。';
+  return '同期に失敗しました。(' + e.message + ')';
+}
+
+function syncPayload(){
+  const user = currentUser();
+  const novels = store.getNovels().filter(n => n.userId === user.username).map(n => ({
+    id: n.id, title: n.title, enLevel: n.enLevel, currentSentenceIndex: n.currentSentenceIndex || 0,
+    sentences: n.sentences.map(x => { const o = { ja: x.ja, en: x.en || null }; if(x.read) o.read = true; return o; })
+  }));
+  return { app: EXPORT_APP, version: EXPORT_VERSION, novels, deleted: getTomb() };
+}
+/* 内容が同じか比べるための正規化(順序や細かい形式の差を無視する)。同じなら保存しない=無駄なコミットを作らない */
+function canon(p){
+  return JSON.stringify({
+    n: [...(p.novels || [])].sort((a, b) => a.id < b.id ? -1 : 1).map(n => [n.id, n.title, n.currentSentenceIndex || 0, (n.sentences || []).map(x => [x.ja, x.en || null, x.read ? 1 : 0])]),
+    d: [...new Set(p.deleted || [])].sort()
+  });
+}
+function applyRemote(obj){
+  if(!obj || obj.app !== EXPORT_APP) return { ok: false, msg: '同期ファイルの形式が正しくありません。' };
+  const tomb = new Set([...getTomb(), ...(Array.isArray(obj.deleted) ? obj.deleted.filter(x => typeof x === 'string') : [])]);
+  localStorage.setItem(LS_TOMB, JSON.stringify([...tomb]));
+  const all = store.getNovels(), me = store.getSession();
+  const keep = all.filter(n => !(n.userId === me && tomb.has(n.id)));
+  if(keep.length !== all.length) localStorage.setItem(LS_DATA, JSON.stringify(keep)); // queueSyncを呼ばない直接書き込み
+  return importUserData({ ...obj, novels: (obj.novels || []).filter(n => !tomb.has(n?.id)) });
+}
+
+async function syncCore(){
+  for(let attempt = 0; attempt < 2; attempt++){
+    const remote = await ghGetFile();
+    let remoteCanon = null;
+    if(remote){
+      let obj;
+      try{ obj = await decryptPayload(JSON.parse(remote.text), ghSync.key); }
+      catch(e){ throw userErr('GitHub上のデータを復号できません。パスワードが違うか、データが壊れています。'); }
+      suppressQueue = true;
+      let r; try{ r = applyRemote(obj); } finally { suppressQueue = false; }
+      if(!r.ok) throw userErr(r.msg);
+      remoteCanon = canon(obj);
+    }
+    const payload = syncPayload();
+    if(canon(payload) === remoteCanon) return; // 変更なし
+    try{
+      await ghPutFile(JSON.stringify(await encryptPayload(payload, ghSync.key)), remote?.sha);
+      return;
+    }catch(e){
+      if((e.status === 409 || e.status === 422) && attempt === 0) continue; // 他の端末が先に更新した→取り直してやり直す
+      throw e;
+    }
+  }
+}
+async function syncNow(){
+  if(syncing) return false;
+  if(!ghSync || ghSync.username !== store.getSession()) return false;
+  syncing = true; syncStatus = '同期中…'; updateSyncUi();
+  let ok = false;
+  try{ await syncCore(); syncStatus = '同期済み ' + new Date().toLocaleTimeString(); ok = true; }
+  catch(e){ syncStatus = describeSyncError(e); }
+  finally{ syncing = false; updateSyncUi(); }
+  if(syncDirty){ syncDirty = false; queueSync(); }
+  return ok;
+}
+function queueSync(){
+  if(!ghSync || suppressQueue) return;
+  if(syncing){ syncDirty = true; return; }
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 4000);
+}
+function updateSyncUi(){ const el = document.getElementById('sy-status'); if(el) el.textContent = (ghSync ? '✓ 接続中。' : '') + syncStatus; }
+
+/* 設定から接続: ログイン中のアカウントのパスワードで鍵を作り、GitHubと同期を開始する */
+async function connectSync(repo, token, pass){
+  try{
+    if(!hasCrypto()) throw userErr(NO_CRYPTO_MSG);
+    if(!REPO_RE.test(repo)) throw userErr('リポジトリは「ユーザー名/リポジトリ名」の形式で入力してください。');
+    if(!token) throw userErr('GitHubトークンを入力してください。');
+    if(!pass) throw userErr('パスワードを入力してください。');
+    const u = currentUser();
+    if(!(await checkPassword(u, pass))) throw userErr('パスワードが違います。');
+    ghSync = await makeSync(repo, token, u.username, pass);
+    localStorage.setItem(LS_GHREPO, repo);
+    if(!(await syncNow())){ const m = syncStatus; ghSync = null; syncStatus = ''; return { ok: false, msg: m }; }
+    return { ok: true };
+  }catch(e){ ghSync = null; return { ok: false, msg: describeSyncError(e) }; }
+}
+
+/* ログイン画面から: GitHub上のデータを、入力したパスワードで復号できたらログイン成功とする */
+async function restoreFromGithub(uname, pass, repo, token){
+  try{
+    if(!hasCrypto()) throw userErr(NO_CRYPTO_MSG);
+    if(!uname || !pass) throw userErr('アカウント名とパスワードを入力してください。');
+    if(!REPO_RE.test(repo)) throw userErr('リポジトリは「ユーザー名/リポジトリ名」の形式で入力してください。');
+    if(!token) throw userErr('GitHubトークンを入力してください。');
+    const users = store.getUsers();
+    const local = users.find(x => x.username === uname);
+    if(local && !(await checkPassword(local, pass))) throw userErr('この端末に同じアカウント名がありますが、パスワードが異なります。');
+    ghSync = await makeSync(repo, token, uname, pass);
+    const remote = await ghGetFile();
+    if(!remote){
+      if(!(await ghRepoExists())) throw httpErr(404);
+      throw userErr('このアカウント名のデータがリポジトリにありません。アカウント名を確認してください。');
+    }
+    let obj;
+    try{ obj = await decryptPayload(JSON.parse(remote.text), ghSync.key); }
+    catch(e){ throw userErr('パスワードが違うか、別のアカウントのデータです。'); }
+    if(!local){ users.push(await newAccountRecord(uname, pass)); store.saveUsers(users); }
+    else await upgradePasswordRecord(local, pass);
+    store.setSession(uname);
+    const r = applyRemote(obj);
+    if(!r.ok) throw userErr(r.msg);
+    localStorage.setItem(LS_GHREPO, repo);
+    syncStatus = '復元しました。';
+    return { ok: true };
+  }catch(e){ ghSync = null; return { ok: false, msg: describeSyncError(e) }; }
+}
+
+function bindGithubAndSync(){
+  const gm = document.getElementById('gh-msg');
+  document.getElementById('gh-enable').addEventListener('click', async () => {
+    const inp = document.getElementById('gh-key');
+    const key = inp.value.trim() || aiKeys.github;
+    const model = document.getElementById('gh-model').value.trim();
+    gm.className = 'error-msg';
+    if(!key){ gm.textContent = 'トークンを入力してください。'; return; }
+    if(!/^[A-Za-z0-9._\/-]+$/.test(model)){ gm.textContent = 'モデル名が正しくありません。(例: openai/gpt-4o-mini)'; return; }
+    gm.className = 'hint'; gm.textContent = '接続を確認しています…';
+    const prevProv = aiProvider, prevKey = aiKeys.github, prevModel = store.getGithubModel(), prevCool = geminiCooldownUntil;
+    aiKeys.github = key; setProvider('github'); geminiCooldownUntil = 0; store.saveGithubModel(model);
+    try{ await geminiAsk('Reply with the single word: ok'); inp.value = ''; resetGeminiState(); render(); }
+    catch(e){
+      aiKeys.github = prevKey; setProvider(prevProv); geminiCooldownUntil = prevCool; store.saveGithubModel(prevModel);
+      gm.className = 'error-msg';
+      gm.textContent = e instanceof TypeError ? '接続できませんでした。ネットワーク、またはブラウザからの直接接続が許可されていない可能性があります。' : describeGeminiError0(e).replace('Gemini', 'GitHub Models');
+    }
+  });
+  document.getElementById('gh-disable')?.addEventListener('click', () => { aiKeys.github = ''; setProvider('gemini'); resetGeminiState(); render(); });
+  document.getElementById('ai-switch')?.addEventListener('change', e => { setProvider(e.target.value); resetGeminiState(); render(); });
+
+  const sy = id => document.getElementById(id);
+  const syMsg = (m, cls) => { const el = sy('sy-msg'); if(el){ el.className = cls; el.textContent = m; } };
+  sy('sy-connect')?.addEventListener('click', async () => {
+    syMsg('接続しています…', 'hint');
+    const r = await connectSync(sy('sy-repo').value.trim(), sy('sy-token').value.trim(), sy('sy-pass').value);
+    if(!r.ok){ syMsg(r.msg, 'error-msg'); return; }
+    render();
+  });
+  sy('sy-now')?.addEventListener('click', async () => { await syncNow(); render(); });
+  sy('sy-off')?.addEventListener('click', () => { ghSync = null; clearTimeout(syncTimer); syncStatus = ''; render(); });
+}
+
+/* ---------------- Settings ---------------- */
+function viewSettings(){
+  const active = !!aiKeys.gemini;
+  const ghActive = !!aiKeys.github;
+  return `
+  ${topbar(true)}
+  <main><div class="center-stage" style="max-width:520px;">
+    <h1 class="hero">設定</h1>
+    <p class="lede">基本の翻訳は端末(ブラウザ)内で行われ、無料でAPIキーも不要です。</p>
+    <div class="hint" id="engine-status" style="margin-top:0;">翻訳エンジンを確認しています…</div>
+
+    <div class="settings-section">
+      <h3>Gemini(任意)</h3>
+      <p class="hint" style="margin-top:0;">
+        APIキーを入力すると、翻訳レベルに応じた訳・文脈を踏まえた単語の意味・「解説を見る」・AIへの質問が使えるようになります。
+      </p>
+      <div class="field">
+        <label>Gemini APIキー</label>
+        <input id="gm-key" type="password" autocomplete="off" spellcheck="false" placeholder="${active ? '入力済み(リロードすると消えます)' : 'AIza... を入力'}">
+      </div>
+      <div class="field">
+        <label>モデル名</label>
+        <input id="gm-model" list="gm-models" spellcheck="false" value="${escapeHtml(store.getGeminiModel())}">
+        <datalist id="gm-models">
+          <option value="gemini-flash-latest"></option>
+          <option value="gemini-flash-lite-latest"></option>
+        </datalist>
+      </div>
+      <div class="${active ? 'ok-msg' : 'error-msg'}" id="gm-msg">${active ? '✓ Geminiを使用中です。' : ''}</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="gm-enable">${active ? '設定を更新' : '接続して有効にする'}</button>
+        ${active ? `<button class="btn secondary" id="gm-disable">使用をやめる</button>` : ''}
+      </div>
+      <div class="hint" style="margin-top:16px;">
+        ・APIキーは<b>保存されません</b>。このページのメモリ上にだけ保持され、ブラウザのリロード・タブを閉じる・ログアウトで消えます(ページ間の移動では消えません)。書き出しファイルにも含まれません。<br>
+        ・有効な間は、翻訳する文・調べる単語・質問内容がGoogleのサーバーへ送信されます。利用料金や入力内容の取り扱いはGoogleの規約・ご自身のアカウント設定に従います。<br>
+        ・無料枠には「1分あたり」「1日あたり」の回数制限があります。このアプリは複数の文を1回のリクエストにまとめて翻訳して回数を節約しますが、上限に達した場合は、翻訳画面で「再試行」か「端末内モデルで翻訳する」を選べます。一般に上限はモデルごとに別なので、モデル名を gemini-flash-lite-latest などに変えると続けられることがあります。
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>音声(読み上げ)</h3>
+      ${hasTts() ? `
+      <p class="hint" style="margin-top:0;">ブラウザ内蔵の音声で読み上げます。外部サーバーへの送信はありません。</p>
+      <div class="field"><label><input type="checkbox" id="tts-auto" style="width:auto; padding:0; vertical-align:middle;"> 文章を切り替えたら自動で読み上げる</label></div>
+      <div class="field"><label>速さ <b id="tts-rate-v"></b></label><input id="tts-rate" type="range" min="0.5" max="1.5" step="0.1" style="padding:0;"></div>
+      <div class="field"><label>音量 <b id="tts-vol-v"></b></label><input id="tts-vol" type="range" min="0" max="1" step="0.05" style="padding:0;"></div>
+      <div class="field"><label>声</label><select id="tts-voice"></select></div>
+      <button class="btn secondary" id="tts-test">試し聞き</button>
+      ` : `<p class="hint" style="margin-top:0;">このブラウザは音声の読み上げに対応していません。</p>`}
+    </div>
+
+    <div class="settings-section">
+      <h3>GitHub Models(任意)</h3>
+      <p class="hint" style="margin-top:0;">GitHubのAIモデル(GPT-4o miniなど)で翻訳・単語の意味・解説・質問を行います。fine-grained personal access token(権限: Models の Read-only)を入力してください。トークンは保存されず、このタブのメモリ上にだけ保持されます。</p>
+      <div class="field"><label>GitHub トークン</label><input id="gh-key" type="password" autocomplete="off" spellcheck="false" placeholder="${ghActive ? '入力済み(リロードすると消えます)' : 'github_pat_... / ghp_...'}"></div>
+      <div class="field"><label>モデル名</label><input id="gh-model" spellcheck="false" value="${escapeHtml(store.getGithubModel())}"></div>
+      <div class="${ghActive ? 'ok-msg' : 'error-msg'}" id="gh-msg">${ghActive ? '✓ GitHub Modelsを登録済みです。' : ''}</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="gh-enable">${ghActive ? '設定を更新' : '接続して有効にする'}</button>
+        ${ghActive ? `<button class="btn secondary" id="gh-disable">使用をやめる</button>` : ''}
+      </div>
+      ${(active && ghActive) ? `<div class="field" style="margin-top:16px;"><label>使うAI</label><select id="ai-switch"><option value="gemini" ${aiProvider==='gemini'?'selected':''}>Gemini</option><option value="github" ${aiProvider==='github'?'selected':''}>GitHub Models</option></select></div>` : ''}
+      <div class="hint" style="margin-top:12px;">有効な間は、翻訳する文・調べる単語・質問内容がGitHub(Microsoft/OpenAI等のモデル提供元を含む)へ送信されます。無料枠には回数制限があります。</div>
+    </div>
+
+    <div class="settings-section">
+      <h3>GitHub同期(任意)</h3>
+      <p class="hint" style="margin-top:0;">小説・訳文・既読・読書位置を、ご自身のGitHubリポジトリに保存して他の端末と同期します。保存前にアカウントのパスワードで暗号化されるため、リポジトリには暗号文しか残りません。同期しなくても、これまで通り端末内だけで使えます。</p>
+      ${ghSync && ghSync.username === (currentUser()?.username) ? `
+      <div class="hint" id="sy-status" style="margin-top:0;">✓ 接続中。${escapeHtml(syncStatus)}</div>
+      <div class="error-msg" id="sy-msg"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <button class="btn" id="sy-now">今すぐ同期</button>
+        <button class="btn secondary" id="sy-off">切断</button>
+      </div>` : `
+      <div class="field"><label>リポジトリ(ユーザー名/リポジトリ名)</label><input id="sy-repo" spellcheck="false" value="${escapeHtml(syncRepo())}"></div>
+      <div class="field"><label>GitHubトークン(保存されません)</label><input id="sy-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..."></div>
+      <div class="field"><label>このアカウントのパスワード(暗号化に使います)</label><input id="sy-pass" type="password" autocomplete="current-password"></div>
+      <div class="error-msg" id="sy-msg"></div>
+      <button class="btn" id="sy-connect">接続して同期</button>`}
+      <div class="hint" style="margin-top:12px;">
+        ・<b>おすすめ</b>: データ専用の<b>非公開(private)リポジトリ</b>を新しく作ってください。公開サイト用リポジトリに置くと、同期のたびにサイトの再公開が走り、暗号文も公開されます。<br>
+        ・トークンは Fine-grained personal access token で、「Repository access」は上のリポジトリ<b>1つだけ</b>、「Permissions」は <b>Contents: Read and write</b> のみにしてください。トークンはこのタブのメモリ上にだけ保持され、リロード・ログアウトで消えます。<br>
+        ・<b>パスワードを忘れるとGitHub上のデータは復元できません。</b>(サーバーを持たないため、リセットできません。定期的に下のエクスポートも取っておくと安心です)<br>
+        ・別の端末では、ログイン画面の「GitHubから復元してログイン」に同じアカウント名・パスワードを入力します。<br>
+        ・削除した小説は他の端末からも削除されます。
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>データのバックアップ</h3>
+      <p class="hint" style="margin-top:0;">
+        このアカウントの小説(原文・訳文・既読・読書位置)をファイルに書き出し、別のブラウザや端末で取り込めます。
+        取り込みは<b>追加方式</b>です。小説のIDが一致しないものは新しく追加し、一致するものは今ある内容を消さずに、未翻訳の文・既読・進んだ読書位置の差分だけを取り込みます。
+        読んだ単語数などの合計は、取り込んだ小説から自動で再計算されます。
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <button class="btn secondary" id="ex-btn">エクスポート</button>
+        <button class="btn secondary" id="im-btn">インポート</button>
+        <input type="file" id="im-file" accept=".json,application/json" style="display:none;">
+      </div>
+      <div class="ok-msg" id="bk-msg"></div>
+      <div class="hint">※書き出したファイルには小説の本文が含まれます。パスワードやAPIキーは含まれません。</div>
+    </div>
+  </div></main>`;
+}
+function bindSettings(){
+  checkEngineStatus();
+  bindSpeechSettings();
+
+  /* ---- Gemini ---- */
+  const msg = document.getElementById('gm-msg');
+  document.getElementById('gm-enable').addEventListener('click', async () => {
+    const keyInput = document.getElementById('gm-key');
+    const key = keyInput.value.trim() || aiKeys.gemini;
+    const model = document.getElementById('gm-model').value.trim().replace(/^models\//, '');
+    msg.className = 'error-msg';
+    if(!key){ msg.textContent = 'APIキーを入力してください。'; return; }
+    if(!/^[A-Za-z0-9._-]+$/.test(model)){ msg.textContent = 'モデル名が正しくありません。'; return; }
+    msg.className = 'hint';
+    msg.textContent = '接続を確認しています…';
+    const prevProv = aiProvider, prevKey = aiKeys.gemini, prevModel = store.getGeminiModel(), prevCool = geminiCooldownUntil;
+    aiKeys.gemini = key; setProvider('gemini');
+    geminiCooldownUntil = 0; // 新しいキー/モデルで試すので、前の上限待ちは解除する
+    store.saveGeminiModel(model);
+    try{
+      await geminiAsk('Reply with the single word: ok');
+      keyInput.value = '';
+      resetGeminiState();
+      render(); // 状態表示を更新(キーは変数にだけ残る)
+    }catch(e){
+      aiKeys.gemini = prevKey; setProvider(prevProv);
+      geminiCooldownUntil = prevCool;
+      store.saveGeminiModel(prevModel);
+      msg.className = 'error-msg';
+      msg.textContent = describeGeminiError(e);
+    }
+  });
+  document.getElementById('gm-disable')?.addEventListener('click', () => {
+    aiKeys.gemini = ''; setProvider(aiKeys.github ? 'github' : 'gemini');
+    resetGeminiState();
+    render();
+  });
+  bindGithubAndSync();
+
+  /* ---- Export / Import ---- */
+  const bk = document.getElementById('bk-msg');
+  document.getElementById('ex-btn').addEventListener('click', () => {
+    const count = exportUserData();
+    bk.className = 'ok-msg';
+    bk.textContent = `${count}冊の小説を書き出しました。`;
+  });
+  const fileInput = document.getElementById('im-file');
+  document.getElementById('im-btn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const f = fileInput.files[0];
+    fileInput.value = ''; // 同じファイルをもう一度選べるようにする
+    if(!f) return;
+    if(f.size > MAX_IMPORT_BYTES){ bk.className = 'error-msg'; bk.textContent = 'ファイルが大きすぎます。'; return; }
+    let obj;
+    try{
+      obj = JSON.parse(await f.text());
+    }catch(e){
+      bk.className = 'error-msg';
+      bk.textContent = 'ファイルを読み込めませんでした(JSON形式ではありません)。';
+      return;
+    }
+    const r = importUserData(obj);
+    bk.className = r.ok ? 'ok-msg' : 'error-msg';
+    bk.textContent = r.msg;
+  });
+}
+async function checkEngineStatus(){
+  const el = document.getElementById('engine-status');
+  if(!el) return;
+  if('Translator' in self){
+    try{
+      const avail = await Translator.availability({ sourceLanguage:'ja', targetLanguage:'en' });
+      if(avail !== 'unavailable'){
+        el.innerHTML = '✓ このブラウザに内蔵された翻訳エンジン(Chrome Translator API)を利用しています。初回のみ小さな言語モデルが自動でダウンロードされます(無料・キー不要)。';
+        return;
+      }
+    }catch(e){ /* フォールバックへ */ }
+  }
+  el.innerHTML = 'このブラウザは内蔵翻訳エンジンに対応していないため、代わりにブラウザ内で動作する翻訳モデル(transformers.js)を使用します。初回の文の翻訳時に少し時間がかかります。';
+}
+
+/* 小説ID。エクスポート/インポート時の照合に使うため、端末をまたいでも重複しにくい値にする */
+function newNovelId(){
+  const rnd = (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+  return 'novel_' + rnd;
+}
+
+function splitJapanese(text){
+  return text
+    .replace(/\r\n/g, '\n')
+    .split(/\n+/)
+    .flatMap(line => line.split(/(?<=[。！？])/))
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+function countWords(en){
+  return (en.match(/[A-Za-z']+/g) || []).length;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------------- translation engine ----------------
+   優先度:
+   1) Chrome内蔵 Translator API … 完全無料・キー不要・端末内で完結(Chrome 138+)
+   2) transformers.js (opus-mt) … 上記が使えないブラウザ向けのフォールバック。同じく端末内で完結
+*/
+/* いずれも「結果」ではなく「Promise」をキャッシュする。
+   (結果をキャッシュすると、読み込み中に別の呼び出しが来たときに重いモデルを何度も読み込んでしまう) */
+const chromeTranslators = new Map();
+function getChromeTranslator(sourceLanguage, targetLanguage){
+  if(!('Translator' in self)) return Promise.resolve(null);
+  const key = sourceLanguage + '>' + targetLanguage;
+  if(!chromeTranslators.has(key)){
+    chromeTranslators.set(key, (async () => {
+      try{
+        const availability = await Translator.availability({ sourceLanguage, targetLanguage });
+        if(availability === 'unavailable') return null;
+        return await Translator.create({ sourceLanguage, targetLanguage });
+      }catch(e){
+        chromeTranslators.delete(key); // 一時的な失敗なら次回やり直せるようにする
+        return null;
+      }
+    })());
+  }
+  return chromeTranslators.get(key);
+}
+
+/* モデルの状態(ダウンロード%→初期化→翻訳実行)を、読書画面の「翻訳中」表示に出す */
+const modelFiles = new Map();
+function setModelStatus(t){
+  const el = document.getElementById('model-progress');
+  if(el) el.textContent = t ? ' ' + t : '';
+}
+function onModelProgress(ev){
+  if(ev.status === 'ready'){ setModelStatus('翻訳を実行中…'); return; }
+  if(ev.status !== 'progress' || !ev.total || !/\.onnx/.test(ev.file || '')) return; // 大きいモデル本体だけを数える
+  modelFiles.set(ev.file, { loaded: ev.loaded, total: ev.total });
+  let loaded = 0, total = 0;
+  modelFiles.forEach(f => { loaded += f.loaded; total += f.total; });
+  if(loaded >= total) setModelStatus('モデルを初期化中…(スマホでは1〜2分かかることがあります)');
+  else setModelStatus(`翻訳モデルをダウンロード中… ${Math.round(loaded / total * 100)}% (${(loaded/1048576).toFixed(0)} / ${(total/1048576).toFixed(0)} MB)`);
+}
+
+let _jaEnP = null, _enJaP = null;
+function getJaEnPipeline(){
+  if(!_jaEnP){
+    modelFiles.clear();
+    _jaEnP = pipeline('translation', 'Xenova/opus-mt-ja-en', { progress_callback: onModelProgress })
+      .catch(e => { _jaEnP = null; throw e; });
+  }
+  return _jaEnP;
+}
+function getEnJaPipeline(){
+  if(!_enJaP){
+    modelFiles.clear();
+    _enJaP = pipeline('translation', 'Xenova/opus-mt-en-jap', { progress_callback: onModelProgress })
+      .catch(e => { _enJaP = null; throw e; });
+  }
+  return _enJaP;
+}
+
+/* ブラウザ内モデルの推論は重いので、必ず1つずつ順番に実行する(同時に走らせるとスマホでは固まる) */
+let engineChain = Promise.resolve();
+function runExclusive(fn){
+  const run = engineChain.then(fn, fn);
+  engineChain = run.catch(() => {});
+  return run;
+}
+function withTimeout(promise, ms, message){
+  let t;
+  return Promise.race([promise, new Promise((_, rej) => { t = setTimeout(() => rej(new Error(message)), ms); })])
+    .finally(() => clearTimeout(t));
+}
+
+const IS_MOBILE = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+const LOCAL_TIMEOUT_MS = 90000;
+
+/* opts.shouldRun: 順番が来た時点でまだ必要かを返す関数。不要になっていれば重い処理を始めずに 'stale' で終える */
+async function translateText(text, sourceLanguage, targetLanguage, opts = {}){
+  const ct = await getChromeTranslator(sourceLanguage, targetLanguage);
+  if(ct) return (await ct.translate(text)).trim();
+  return runExclusive(async () => {
+    if(opts.shouldRun && !opts.shouldRun()) throw new Error('stale');
+    const pipe = sourceLanguage === 'ja' ? await getJaEnPipeline() : await getEnJaPipeline();
+    setModelStatus('翻訳を実行中…');
+    /* 生成が終わらず延々と続くのを防ぐため、出力の長さに上限を付ける。スマホでは速度優先で探索幅も1にする */
+    const gen = { max_new_tokens: sourceLanguage === 'ja' ? Math.min(256, Math.max(32, text.length * 2 + 16)) : 32 };
+    if(IS_MOBILE) gen.num_beams = 1;
+    const out = await withTimeout(pipe(text, gen), LOCAL_TIMEOUT_MS, 'local-timeout');
+    return out[0]?.translation_text?.trim() || '';
+  });
+}
+
+/* 今どの文を表示しているか。先読みや古い翻訳が「もう要らない」か判断するために使う */
+let viewing = { novelId: null, idx: -1 };
+function isWanted(novelId, idx){
+  return viewing.novelId === novelId && (idx === viewing.idx || idx === viewing.idx + 1);
+}
+
+/* ---------------- Reading ---------------- */
+function viewReading(user, id){
+  const novels = store.getNovels();
+  const novel = novels.find(n => n.id === id && n.userId === user.username);
+  if(!novel){
+    return `${topbar(true)}<main><div class="wide-stage"><p>小説が見つかりませんでした。</p><button class="btn" onclick="location.hash='Table'">一覧に戻る</button></div></main>`;
+  }
+  const idx = novel.currentSentenceIndex || 0;
+  const s = novel.sentences[idx];
+  const isLast = idx >= novel.sentences.length - 1;
+  return `
+  ${topbar(true)}
+  <div class="read-stage">
+    <div class="read-col">
+      <button class="linklike" onclick="location.hash='Table'">← 小説一覧に戻る</button>
+      <div class="read-topline">
+        <h2>${escapeHtml(novel.title)}</h2>
+        <span class="pos">${idx+1} / ${novel.sentences.length} 文</span>
+      </div>
+      <div class="sentence-box" id="sentence-box">
+        ${s?.en ? wordsHtml(s.en) : pendingHtml()}
+      </div>
+      <button class="linklike" id="ja-toggle-btn">日本語原文を表示</button>
+      <div class="ja-toggle-box" id="ja-toggle-box">${escapeHtml(s?.ja || '')}</div>
+      <div class="read-controls">
+        <button class="btn secondary" id="prev-btn" ${idx===0?'disabled':''}>← 前の文章</button>
+        <div class="mid-actions">
+          ${hasTts() ? `<button class="btn secondary" id="speak-btn">🔊 音声を再生</button>` : ''}
+          ${geminiKey ? `<button class="btn secondary" id="explain-btn">解説を見る</button>` : ''}
+        </div>
+        <button class="btn" id="next-btn" ${isLast?'disabled':''}>次の文章 →</button>
+      </div>
+      ${hasTts() ? `<div class="tts-row"><label>速さ <input type="range" id="rd-rate" min="0.5" max="1.5" step="0.1"></label><label>音量 <input type="range" id="rd-vol" min="0" max="1" step="0.05"></label></div>` : ''}
+    </div>
+    <div class="side-panel">
+      <h3>単語の意味</h3>
+      <div class="word-lookup" id="word-lookup">英文の単語をクリックすると、ここに意味が表示されます。</div>
+      ${geminiKey ? `
+      <h3>AIに質問する</h3>
+      <div class="chat-log" id="chat-log"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" placeholder="英語表現について質問…">
+        <button class="btn small" id="chat-send">送信</button>
+      </div>
+      <div class="hint">${AI_NAME()}で応答しています。単語の意味・質問内容は外部のAIサービス(${aiProvider === 'github' ? 'GitHub' : 'Google'})へ送信されます。</div>
+      ` : `
+      <div class="hint">端末内の翻訳エンジンで意味を調べています。外部サーバーへの送信はありません。<br>発音の再生は使えます。詳細表示(複数の意味・活用・語源)・解説・AIへの質問は、<button class="linklike" onclick="location.hash='Settings'">設定</button>でGeminiのAPIキーを入力すると使えます。</div>
+      `}
+    </div>
+  </div>`;
+}
+
+function tokenizeEnglish(en){
+  const parts = en.split(/([A-Za-z']+)/);
+  return parts.filter(p => p.length > 0).map(p => ({
+    raw: p,
+    clean: p.toLowerCase(),
+    isWord: /^[A-Za-z']+$/.test(p)
+  }));
+}
+
+function wordsHtml(en){
+  const words = tokenizeEnglish(en);
+  return words.map((w,i) => w.isWord
+    ? `<span class="word" data-word="${escapeHtml(w.clean)}" data-wi="${i}">${escapeHtml(w.raw)}</span>`
+    : `<span>${escapeHtml(w.raw)}</span>`).join('');
+}
+
+const wordCache = {};
+let readingCtx = { novelId: null, sentenceEn: '' };
+
+/* 単語の意味。Geminiが使える間はGemini(意味・品詞・発音記号・活用)、使えないときは(ユーザーが許可した場合だけ)端末内翻訳 */
+async function lookupWord(word, sentenceEn){
+  if(geminiKey){
+    if(geminiUsableNow()){
+      try{
+        const t = await callGemini([{ role: 'user', parts: [{ text: promptWordBasic(word, sentenceEn) }] }], null, { responseMimeType: 'application/json' });
+        const d = parseJson(t);
+        return d && d.meaning ? d : { meaning: t };
+      }catch(e){ if(!allowLocalFallback){ e.gemini = true; throw e; } }
+    } else if(!allowLocalFallback){
+      throw geminiCooldownError();
+    }
+  }
+  return { meaning: await translateText(word, 'en', 'ja') };
+}
+
+function renderWordBox(word, d){
+  const box = document.getElementById('word-lookup');
+  const meta = [d.pos, d.form].filter(Boolean).map(x => escapeHtml(String(x))).join(' / ');
+  box.innerHTML = `<div class="w">${escapeHtml(word)} ${hasTts() ? `<button class="linklike" id="word-speak" title="発音を聞く">🔊</button>` : ''}</div>
+    ${d.ipa ? `<div class="ipa">${escapeHtml(String(d.ipa))}</div>` : ''}
+    ${meta ? `<div class="hint" style="margin-top:4px;">${meta}</div>` : ''}
+    <div class="m">${escapeHtml(String(d.meaning || '(見つかりませんでした)'))}</div>
+    ${geminiKey ? `<button class="linklike" id="word-detail" style="margin-top:10px;">詳細表示</button><div id="word-detail-box"></div>` : ''}`;
+  document.getElementById('word-speak')?.addEventListener('click', () => speak(word));
+  document.getElementById('word-detail')?.addEventListener('click', (ev) => showWordDetail(word, ev.currentTarget));
+}
+
+async function showWordDetail(word, btn){
+  const out = document.getElementById('word-detail-box');
+  if(!out) return;
+  if(out.dataset.open){ out.innerHTML = ''; delete out.dataset.open; btn.textContent = '詳細表示'; return; }
+  out.dataset.open = '1'; btn.textContent = '詳細を閉じる';
+  let d = detailCache[word];
+  if(!d){
+    out.innerHTML = '<div class="hint">詳細を調べています…</div>';
+    try{
+      if(!geminiUsableNow()) throw geminiCooldownError();
+      const t = await callGemini([{ role: 'user', parts: [{ text: promptWordDetail(word, readingCtx.sentenceEn) }] }], null, { responseMimeType: 'application/json' });
+      d = parseJson(t);
+      if(!d) throw new Error('parse-error');
+      detailCache[word] = d;
+    }catch(e){
+      if(out.isConnected){ out.innerHTML = `<div class="hint">${escapeHtml(describeGeminiError(e))}</div>`; delete out.dataset.open; btn.textContent = '詳細表示'; }
+      return;
+    }
+  }
+  if(!out.isConnected) return; // 待っている間に別の単語へ移った
+  const li = x => `<li>${escapeHtml(String(x))}</li>`;
+  const ms = (d.meanings || []).map(m => `<div class="dpos">${escapeHtml(String(m.pos || ''))}</div><ol>${(m.senses || []).map(li).join('')}</ol>`).join('');
+  const fm = (d.forms || []).length ? `<div class="dh">活用・変化形</div><div>${d.forms.map(x => escapeHtml(String(x))).join('<br>')}</div>` : '';
+  const et = d.etymology ? `<div class="dh">語源</div><div>${escapeHtml(String(d.etymology))}</div>` : '';
+  const lm = d.lemma && String(d.lemma).toLowerCase() !== word ? `<div class="dh">原形: ${escapeHtml(String(d.lemma))}</div>` : '';
+  out.innerHTML = `<div class="dwrap">${lm}${ms}${fm}${et}</div>`;
+}
+
+function attachWordHandlers(){
+  document.querySelectorAll('.word').forEach(el => {
+    el.addEventListener('click', async () => {
+      const word = el.dataset.word;
+      const box = document.getElementById('word-lookup');
+      document.querySelectorAll('.word.looked').forEach(w => w.classList.remove('looked'));
+      el.classList.add('looked');
+      /* Gemini使用時は文脈で意味が変わるので、単語+文でキャッシュする */
+      const cacheKey = geminiKey ? word + '|' + readingCtx.sentenceEn : word;
+      if(wordCache[cacheKey]){ renderWordBox(word, wordCache[cacheKey]); return; }
+      box.innerHTML = `<div class="w">${escapeHtml(word)}</div><div class="m">意味を調べています…</div>`;
+      try{
+        const d = await lookupWord(word, readingCtx.sentenceEn);
+        wordCache[cacheKey] = d;
+        if(el.classList.contains('looked')) renderWordBox(word, d);
+      }catch(e){
+        if(!el.classList.contains('looked')) return;
+        if(e && e.gemini){
+          box.innerHTML = `<div class="w">${escapeHtml(word)}</div><div class="m">${escapeHtml(describeGeminiError(e))}</div><button class="linklike" id="word-local" style="margin-top:8px;">端末内モデルで調べる</button>`;
+          document.getElementById('word-local').addEventListener('click', () => { allowLocalFallback = true; el.click(); });
+        } else {
+          box.innerHTML = `<div class="w">${escapeHtml(word)}</div><div class="m">意味の取得に失敗しました。</div>`;
+        }
+      }
+    });
+  });
+}
+
+/* translate the sentence currently on screen, if it hasn't been translated yet,
+   then patch the DOM and persist the result -- this is the "文章ごとに翻訳" step */
+/* 同じ文を二重に翻訳しないための進行中マップ(先読みと表示用が重なっても1回で済む) */
+const inflightTranslations = new Map();
+
+/* ---- Gemini: 複数の文を1回のリクエストでまとめて翻訳する(無料枠はリクエスト回数で数えられるため) ---- */
+const GEMINI_BATCH_FIRST = 4;  // 今見ている文が未翻訳のときは、待ち時間を抑えるため少なめに
+const GEMINI_BATCH_AHEAD = 8;  // 先読みのときは多めにまとめる
+let geminiSchemaOk = true;
+
+function parseJsonArray(text){
+  const t = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  return JSON.parse(t);
+}
+async function geminiTranslateMany(jaList, level){
+  if(jaList.length === 1) return [await geminiAsk(promptTranslateSentence(jaList[0], level))];
+  const prompt = `次の日本語の文${jaList.length}個を、${levelLabel(level)}で自然な英語にそれぞれ翻訳してください。意味は変えず、各文は前後の文脈がなくても読める1文にしてください。入力と同じ順番・同じ個数で、英訳だけを並べたJSON配列(文字列の配列)のみを出力してください。説明は不要です。\n\n` + JSON.stringify(jaList);
+  const contents = [{ role: 'user', parts: [{ text: prompt }] }];
+  let text;
+  if(geminiSchemaOk){
+    try{
+      text = await callGemini(contents, null, { responseMimeType: 'application/json', responseSchema: { type: 'ARRAY', items: { type: 'STRING' } } });
+    }catch(e){
+      // スキーマ指定に対応していないモデルの場合だけ、指定なしでやり直す(キーの不備などはそのまま失敗させる)
+      if(e.status === 400 && !/API key/i.test(e.message)){ geminiSchemaOk = false; text = await callGemini(contents); }
+      else throw e;
+    }
+  } else {
+    text = await callGemini(contents);
+  }
+  let arr = null;
+  try{ arr = parseJsonArray(text); }catch(_e){}
+  if(Array.isArray(arr) && arr.length === jaList.length && arr.every(x => typeof x === 'string' && x.trim())){
+    return arr.map(x => x.trim());
+  }
+  // 形式が崩れたら最初の1文だけ単独で翻訳する(残りは必要になったときに翻訳される)
+  return [await geminiAsk(promptTranslateSentence(jaList[0], level))];
+}
+
+function saveTranslations(novelId, pairs){
+  const fresh = store.getNovels();
+  const fn = findNovel(fresh, novelId);
+  if(!fn) return;
+  let changed = false;
+  for(const [i, en] of pairs){
+    if(fn.sentences[i] && !fn.sentences[i].en && en){ fn.sentences[i].en = en; changed = true; }
+  }
+  if(changed) store.saveNovels(fresh);
+}
+
+function startGeminiBatch(novelId, n, idx){
+  const size = (viewing.novelId === novelId && viewing.idx === idx) ? GEMINI_BATCH_FIRST : GEMINI_BATCH_AHEAD;
+  const idxs = [];
+  for(let i = idx; i < n.sentences.length && idxs.length < size; i++){
+    if(n.sentences[i].en) break;
+    if(i !== idx && inflightTranslations.has(novelId + ':' + i)) break;
+    idxs.push(i);
+  }
+  const batchP = (async () => {
+    const texts = await geminiTranslateMany(idxs.map(i => n.sentences[i].ja), n.enLevel);
+    saveTranslations(novelId, idxs.map((i, k) => [i, texts[k]]));
+    return texts;
+  })().catch(e => { e.gemini = true; throw e; });
+
+  idxs.forEach((i, k) => {
+    const key = novelId + ':' + i;
+    const pi = batchP.then(t => { if(!t[k]) throw new Error('not-translated'); return t[k]; });
+    inflightTranslations.set(key, pi);
+    pi.finally(() => { if(inflightTranslations.get(key) === pi) inflightTranslations.delete(key); }).catch(() => {});
+  });
+  return inflightTranslations.get(novelId + ':' + idx);
+}
+
+async function localTranslateAndSave(novelId, n, idx){
+  const en = await translateText(n.sentences[idx].ja, 'ja', 'en', { shouldRun: () => isWanted(novelId, idx) });
+  saveTranslations(novelId, [[idx, en]]);
+  return en;
+}
+
+async function ensureTranslated(novelId, idx){
+  const n = findNovel(store.getNovels(), novelId);
+  if(!n) return '';
+  const s = n.sentences[idx];
+  if(!s) return '';
+  if(s.en) return s.en;
+
+  const key = novelId + ':' + idx;
+  if(inflightTranslations.has(key)) return inflightTranslations.get(key);
+
+  if(geminiKey){
+    if(geminiUsableNow()){
+      try{ return await startGeminiBatch(novelId, n, idx); }
+      catch(e){ if(!allowLocalFallback) throw e; /* 許可されている場合だけ端末内翻訳へ */ }
+    } else if(!allowLocalFallback){
+      throw geminiCooldownError();
+    }
+  }
+  const p = localTranslateAndSave(novelId, n, idx);
+  inflightTranslations.set(key, p);
+  try{
+    return await p;
+  } finally {
+    if(inflightTranslations.get(key) === p) inflightTranslations.delete(key);
+  }
+}
+
+/* 今表示している文の「1つ隣(次)」の文をバックグラウンドで先に翻訳しておく */
+function prefetchNeighbors(novelId, idx){
+  const novels = store.getNovels();
+  const n = findNovel(novels, novelId);
+  if(!n) return;
+  [idx + 1].forEach(i => {
+    if(i < 0 || i >= n.sentences.length) return;
+    if(n.sentences[i].en) return;
+    ensureTranslated(novelId, i).catch(() => {});
+  });
+}
+
+function pendingHtml(){
+  return `<span class="hint" id="translate-hint">翻訳中…<span id="model-progress"></span></span>`;
+}
+
+let troubleTimer = null;
+function showGeminiTrouble(box, novelId, idx, e){
+  const limit = e.status === 429 || e.status === 503;
+  const sec = Math.max(1, Math.ceil((e.retryMs || 60000) / 1000));
+  let msg;
+  if(e.status === 400 || e.status === 401 || e.status === 403) msg = 'Geminiを利用できません。設定でAPIキーを確認してください。';
+  else if(limit && e.daily) msg = 'Geminiの1日あたりの無料枠に達した可能性があります。';
+  else if(limit) msg = `Geminiの利用上限に達しました。約${sec}秒後に再開できます。`;
+  else msg = 'Geminiとの通信に失敗しました。';
+  const auto = limit && !e.daily && (e.retryMs || 0) <= 120000;
+  box.innerHTML = `
+    <div class="hint">${escapeHtml(msg.replace(/Gemini/g, AI_NAME()))}${auto ? '(自動で再試行します)' : ''}</div>
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn secondary small" id="gm-retry">再試行</button>
+      <button class="btn secondary small" id="gm-local">端末内モデルで翻訳する</button>
+    </div>
+    <div class="hint">端末内モデルは初回に大きなダウンロードがあり、スマホでは非常に遅い場合があります。${e.daily ? '設定でモデル名を gemini-flash-lite-latest などに変えると、別の枠で続けられることがあります。' : ''}</div>`;
+  const redo = () => { box.innerHTML = pendingHtml(); translateSentenceAndRender(novelId, idx); };
+  document.getElementById('gm-retry').addEventListener('click', redo);
+  document.getElementById('gm-local').addEventListener('click', () => { allowLocalFallback = true; redo(); });
+  clearTimeout(troubleTimer);
+  if(auto){
+    troubleTimer = setTimeout(() => {
+      if(box.isConnected && viewing.novelId === novelId && viewing.idx === idx && document.getElementById('gm-retry')) redo();
+    }, (e.retryMs || 60000) + 800);
+  }
+}
+
+async function translateSentenceAndRender(novelId, idx){
+  const box = document.getElementById('sentence-box');
+  const isActive = () => box && box.isConnected && viewing.novelId === novelId && viewing.idx === idx;
+  try{
+    const novels = store.getNovels();
+    const n = findNovel(novels, novelId);
+    if(!n) return;
+    const s = n.sentences[idx];
+    if(!s) return;
+
+    const en = await ensureTranslated(novelId, idx);
+
+    /* 翻訳を待っている間に別の文へ移動していたら、古い画面へは書き込まない */
+    if(isActive()){
+      readingCtx = { novelId, sentenceEn: en };
+      box.innerHTML = wordsHtml(en);
+      attachWordHandlers();
+      maybeAutoSpeak();
+    }
+    prefetchNeighbors(novelId, idx);
+  }catch(e){
+    if(e && e.message === 'stale') return; // 移動済みで不要になった翻訳(エラーではない)
+    if(!isActive()) return;
+    if(e && e.gemini){ showGeminiTrouble(box, novelId, idx, e); return; }
+    const reason = (e && e.message === 'local-timeout')
+      ? '端末内の翻訳が時間内に終わりませんでした。この端末では端末内モデルが重すぎる可能性があります(Geminiの利用をおすすめします)。'
+      : '翻訳モデルの読み込みに失敗しました。';
+    box.innerHTML = `<span class="hint">${reason}<button class="linklike" id="retry-translate-btn">再試行</button></span>`;
+    document.getElementById('retry-translate-btn')?.addEventListener('click', () => { box.innerHTML = pendingHtml(); translateSentenceAndRender(novelId, idx); });
+  }
+}
+
+function bindReading(user, id){
+  const novels = store.getNovels();
+  const novel = novels.find(n => n.id === id && n.userId === user.username);
+  if(!novel) return;
+
+  document.getElementById('ja-toggle-btn')?.addEventListener('click', () => {
+    document.getElementById('ja-toggle-box').classList.toggle('show');
+  });
+
+  const idx = novel.currentSentenceIndex || 0;
+  viewing = { novelId: novel.id, idx };
+  const currentSentence = novel.sentences[idx];
+  if(currentSentence?.en){
+    readingCtx = { novelId: novel.id, sentenceEn: currentSentence.en };
+    attachWordHandlers();
+    maybeAutoSpeak();
+    prefetchNeighbors(novel.id, idx);
+  } else {
+    translateSentenceAndRender(novel.id, idx);
+  }
+
+  document.getElementById('explain-btn')?.addEventListener('click', () => {
+    document.getElementById('ja-toggle-box').classList.add('show');
+    document.getElementById('ja-toggle-btn').scrollIntoView({behavior:'smooth', block:'center'});
+    showExplanation(novel.id, idx);
+  });
+
+  chatHistory = []; // 画面を描き直すたびにチャット欄も空になるので、履歴も合わせて空にする
+  document.getElementById('chat-send')?.addEventListener('click', () => sendChat(novel));
+  document.getElementById('chat-input')?.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !e.isComposing) sendChat(novel); // 日本語入力の変換確定のEnterでは送信しない
+  });
+
+  document.getElementById('speak-btn')?.addEventListener('click', () => {
+    if(hasTts() && speechSynthesis.speaking) stopSpeech(); else speakSentence();
+  });
+  const rdRate = document.getElementById('rd-rate'), rdVol = document.getElementById('rd-vol');
+  if(rdRate && rdVol){
+    rdRate.value = getTts().rate; rdVol.value = getTts().volume;
+    rdRate.oninput = () => setTts({ rate: +rdRate.value }); // 次に再生するときから反映
+    rdVol.oninput = () => setTts({ volume: +rdVol.value });
+  }
+  document.getElementById('prev-btn')?.addEventListener('click', () => moveSentence(novel, -1));
+  document.getElementById('next-btn')?.addEventListener('click', () => moveSentence(novel, 1));
+}
+
+async function showExplanation(novelId, idx){
+  if(!geminiKey) return;
+  const box = document.getElementById('ja-toggle-box');
+  const n = findNovel(store.getNovels(), novelId);
+  const s = n?.sentences[idx];
+  if(!s || !s.en) return;
+  if(box.dataset.explained === String(idx) || box.dataset.explaining === String(idx)) return;
+  box.dataset.explaining = String(idx);
+  box.insertAdjacentHTML('beforeend', `<div class="hint" id="explain-loading" style="margin-top:10px;">解説を生成しています…</div>`);
+  try{
+    const explanation = await geminiAsk(promptExplain(s.en, s.ja));
+    document.getElementById('explain-loading')?.remove();
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-top:10px; padding-top:10px; border-top:1px solid var(--line); white-space:pre-wrap;';
+    div.textContent = explanation;
+    box.appendChild(div);
+    box.dataset.explained = String(idx);
+  }catch(e){
+    const el = document.getElementById('explain-loading');
+    if(el){ el.textContent = '解説の生成に失敗しました。'; el.removeAttribute('id'); }
+  }finally{
+    delete box.dataset.explaining;
+  }
+}
+
+let chatHistory = [];
+async function sendChat(novel){
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const log = document.getElementById('chat-log');
+  if(!input || !log || !geminiKey) return;
+  const q = input.value.trim();
+  if(!q || sendBtn.disabled) return;
+  input.value = '';
+  sendBtn.disabled = true;
+
+  const addMsg = (who, text, cls) => {
+    const div = document.createElement('div');
+    div.className = 'chat-msg' + (cls ? ' ' + cls : '');
+    const w = document.createElement('div'); w.className = 'who'; w.textContent = who;
+    const t = document.createElement('div'); t.textContent = text;
+    div.append(w, t);
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return t;
+  };
+  addMsg('あなた', q, 'user');
+  const pending = addMsg('AI', '考えています…');
+
+  const s = novel.sentences[novel.currentSentenceIndex || 0];
+  const userText = `現在の英文: "${s.en || '(未翻訳)'}"\n参考(日本語原文): "${s.ja}"\n質問: ${q}`;
+  const contents = [...chatHistory, { role: 'user', parts: [{ text: userText }] }];
+  try{
+    const answer = await callGemini(contents, 'あなたは英語学習をサポートするアシスタントです。読んでいる文章について、日本語で簡潔に答えてください。');
+    pending.textContent = answer;
+    chatHistory.push({ role: 'user', parts: [{ text: userText }] }, { role: 'model', parts: [{ text: answer }] });
+    if(chatHistory.length > 8) chatHistory = chatHistory.slice(-8);
+  }catch(e){
+    pending.textContent = '応答の取得に失敗しました。(' + describeGeminiError(e) + ')';
+  }
+  sendBtn.disabled = false;
+  log.scrollTop = log.scrollHeight;
+}
+
+function moveSentence(novel, delta){
+  const novels = store.getNovels();
+  const n = findNovel(novels, novel.id);
+  if(!n) return;
+  const newIdx = (n.currentSentenceIndex || 0) + delta;
+  if(newIdx < 0 || newIdx >= n.sentences.length) return;
+
+  if(delta > 0){
+    /* 読み終えた文に既読フラグを付けるだけ。読んだ単語数は novelStats() が都度計算する */
+    const sentence = n.sentences[n.currentSentenceIndex || 0];
+    if(sentence.en) sentence.read = true;
+  }
+  n.currentSentenceIndex = newIdx;
+  store.saveNovels(novels);
+  autoSpeakNext = getTts().auto;
+
+  /* 同じハッシュを代入してもhashchangeは発火しないため、直接再描画する */
+  const target = 'Reading?id=' + n.id;
+  if(location.hash.replace(/^#/, '') === target){
+    render();
+  } else {
+    nav(target);
+  }
+}
+
+</script>
+</body>
+</html>
